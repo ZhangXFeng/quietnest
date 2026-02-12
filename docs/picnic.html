@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>营装记 - 低保真原型</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+    }
+    .screen {
+      width: 100%;
+      max-width: 400px;
+      margin: 20px auto;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      position: relative;
+    }
+    .header {
+      background: #2e7d32;
+      color: white;
+      padding: 16px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.1rem;
+      position: relative;
+    }
+    .header .right-btn {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+    .content {
+      padding: 16px;
+      min-height: 400px;
+    }
+    .list-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .list-item:last-child { border-bottom: none; }
+    .photo {
+      width: 48px;
+      height: 48px;
+      background: #e0e0e0;
+      border-radius: 8px;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+    .item-info {
+      flex: 1;
+    }
+    .item-name {
+      font-weight: 600;
+    }
+    .tag {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      margin-left: 8px;
+    }
+    .status-normal { background: #e8f5e9; color: #2e7d32; }
+    .status-warn  { background: #fff3e0; color: #ef6c00; }
+    .fab {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      background: #4caf50;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid #ddd;
+      display: flex;
+      height: 60px;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+    }
+    .nav-item {
+      flex: 1;
+      text-align: center;
+      padding: 8px 0;
+      color: #666;
+      font-size: 0.75rem;
+    }
+    .nav-item.active {
+      color: #2e7d32;
+      font-weight: bold;
+    }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; margin-bottom: 6px; font-size: 0.9rem; }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+    .btn {
+      padding: 12px 24px;
+      background: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 8px 4px;
+    }
+    .btn-cancel { background: #757575; }
+    .empty-state {
+      text-align: center;
+      padding: 100px 20px;
+      color: #777;
+    }
+    .empty-icon { font-size: 5rem; margin-bottom: 16px; opacity: 0.6; }
+  </style>
+</head>
+<body>
+
+<!-- 屏幕1：装备库（首页） -->
+<div class="screen">
+  <div class="header">我的装备<span class="right-btn">+</span></div>
+  <div class="content">
+    <div class="list-item">
+      <div class="photo"></div>
+      <div class="item-info">
+        <div><span class="item-name">MSR Hubba Hubba 2</span><span class="tag status-normal">正常</span></div>
+        <div style="font-size:0.85rem;color:#666;">帐篷 ・ 最后使用：2026-01-15</div>
+      </div>
+    </div>
+    <div class="list-item">
+      <div class="photo"></div>
+      <div class="item-info">
+        <div><span class="item-name">Naturehike 充气睡垫</span><span class="tag status-warn">需保养</span></div>
+        <div style="font-size:0.85rem;color:#666;">睡垫 ・ 使用8次</div>
+      </div>
+    </div>
+    <div class="list-item">
+      <div class="photo"></div>
+      <div class="item-info">
+        <div><span class="item-name">Coleman 炉具</span><span class="tag status-normal">正常</span></div>
+        <div style="font-size:0.85rem;color:#666;">炊具 ・ 最后使用：2025-12-20</div>
+      </div>
+    </div>
+
+    <!-- 空状态示例（可通过注释掉上面列表来模拟） -->
+    <!-- 
+    <div class="empty-state">
+      <div class="empty-icon">🎒</div>
+      <p>还没有装备～<br>快添加你的第一件装备吧！</p>
+    </div>
+    -->
+  </div>
+  <div class="fab">+</div>
+</div>
+
+<!-- 屏幕2：添加/编辑装备 -->
+<div class="screen">
+  <div class="header">添加装备</div>
+  <div class="content">
+    <div class="form-group">
+      <label>照片</label>
+      <div style="width:120px;height:120px;background:#e0e0e0;border-radius:8px;margin:0 auto;"></div>
+      <p style="text-align:center;font-size:0.85rem;color:#666;margin-top:8px;">点击拍照或从相册选择</p>
+    </div>
+    <div class="form-group">
+      <label>名称</label>
+      <input type="text" placeholder="例如：MSR Hubba Hubba 2" />
+    </div>
+    <div class="form-group">
+      <label>分类</label>
+      <select>
+        <option>帐篷</option>
+        <option>睡袋</option>
+        <option>睡垫</option>
+        <option>炉具</option>
+        <option>灯具</option>
+        <option>其他</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>状态</label>
+      <select>
+        <option>正常</option>
+        <option>需维修</option>
+        <option>借出</option>
+        <option>丢失</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>备注 / 保养记录</label>
+      <textarea rows="4" placeholder="例如：上次使用后已清洁，放在后备箱左侧"></textarea>
+    </div>
+    <div style="text-align:center;margin-top:24px;">
+      <button class="btn btn-cancel">取消</button>
+      <button class="btn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 底部导航（参考） -->
+<div style="height:90px;"></div>
+<div class="bottom-nav">
+  <div class="nav-item active">装备库</div>
+  <div class="nav-item">清单</div>
+  <div class="nav-item">记录</div>
+  <div class="nav-item">我的</div>
+</div>
+
+</body>
+</html>
