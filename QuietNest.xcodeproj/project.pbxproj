@@ -3,18 +3,40 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2496A05A3D0C3DFBA71859F4 /* AssetCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A726681FE33B1F072FDDF24 /* AssetCache.swift */; };
+		2B2DD8A6530B1252F3B4E1A3 /* GrainScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5629BD1A8FEF6269C2F6420 /* GrainScheduler.swift */; };
+		3666F815BDCC1E7CDDF75AE9 /* GrainVoice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 839F1760773979638131468B /* GrainVoice.swift */; };
+		40031A7BCEC07506417191AD /* AtomicParamBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6C3F91DFD4EF847B76A570 /* AtomicParamBox.swift */; };
+		4420F827D06BC9C3BEA7A99F /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB9D16D15CD09954A8F955E /* AudioManager.swift */; };
+		4A84CCC26600C3A1A9E20956 /* Assets in Resources */ = {isa = PBXBuildFile; fileRef = 65643944301B06A405DED91E /* Assets */; };
+		68A0AC918538E44EAB994352 /* Xoshiro256.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3EC1A6F36CD52D19E4E1850 /* Xoshiro256.swift */; };
 		9CDC4C74CA940AFCA010D725 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71622D3A7E4BC3E01A5CDBC6 /* ContentView.swift */; };
+		AEF31F60390EBFD33A5A2E00 /* NoiseDSP.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4AF6B9CF987D29664A46367 /* NoiseDSP.swift */; };
+		BA5BAE953C99621379AB705A /* AudioEngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC543F6F0242F7C49146E88A /* AudioEngineManager.swift */; };
+		D0AFFBF7B6B2EB897AE7ED55 /* ParamSmoother.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2708EC3079B4B909E2CCC464 /* ParamSmoother.swift */; };
 		D6F4C48D391C3E92A30EDF98 /* QuietNestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 866C2AB98BA64D952AC6279D /* QuietNestApp.swift */; };
+		F40881C0596631BB84EFAD47 /* TrackParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0252C2D686ED0C14B15EA072 /* TrackParams.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0252C2D686ED0C14B15EA072 /* TrackParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackParams.swift; sourceTree = "<group>"; };
+		2708EC3079B4B909E2CCC464 /* ParamSmoother.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParamSmoother.swift; sourceTree = "<group>"; };
+		3DB9D16D15CD09954A8F955E /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
+		65643944301B06A405DED91E /* Assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Assets; path = QuietNest/Resources/Assets; sourceTree = SOURCE_ROOT; };
+		6A726681FE33B1F072FDDF24 /* AssetCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetCache.swift; sourceTree = "<group>"; };
 		71622D3A7E4BC3E01A5CDBC6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		839F1760773979638131468B /* GrainVoice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrainVoice.swift; sourceTree = "<group>"; };
 		866C2AB98BA64D952AC6279D /* QuietNestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuietNestApp.swift; sourceTree = "<group>"; };
-		BE2384A27489EDAF723E3718 /* QuietNest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuietNest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B5629BD1A8FEF6269C2F6420 /* GrainScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrainScheduler.swift; sourceTree = "<group>"; };
+		BE2384A27489EDAF723E3718 /* QuietNest.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = QuietNest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC543F6F0242F7C49146E88A /* AudioEngineManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineManager.swift; sourceTree = "<group>"; };
+		DC6C3F91DFD4EF847B76A570 /* AtomicParamBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomicParamBox.swift; sourceTree = "<group>"; };
+		E4AF6B9CF987D29664A46367 /* NoiseDSP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoiseDSP.swift; sourceTree = "<group>"; };
+		F3EC1A6F36CD52D19E4E1850 /* Xoshiro256.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Xoshiro256.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -27,12 +49,46 @@
 			path = QuietNest/Views;
 			sourceTree = "<group>";
 		};
+		0F58B6F5B8ECC87BB58F9DB1 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				DC543F6F0242F7C49146E88A /* AudioEngineManager.swift */,
+				3DB9D16D15CD09954A8F955E /* AudioManager.swift */,
+				B5629BD1A8FEF6269C2F6420 /* GrainScheduler.swift */,
+				839F1760773979638131468B /* GrainVoice.swift */,
+				E4AF6B9CF987D29664A46367 /* NoiseDSP.swift */,
+				2708EC3079B4B909E2CCC464 /* ParamSmoother.swift */,
+				F3EC1A6F36CD52D19E4E1850 /* Xoshiro256.swift */,
+			);
+			name = Audio;
+			path = QuietNest/Audio;
+			sourceTree = "<group>";
+		};
 		4D3D61D9399BCAFF3C19EFE1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				BE2384A27489EDAF723E3718 /* QuietNest.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		75700F87D203D74B3990F6BD /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				6A726681FE33B1F072FDDF24 /* AssetCache.swift */,
+				DC6C3F91DFD4EF847B76A570 /* AtomicParamBox.swift */,
+			);
+			name = Services;
+			path = QuietNest/Services;
+			sourceTree = "<group>";
+		};
+		AB88D0E2EB78335905ECE591 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				0252C2D686ED0C14B15EA072 /* TrackParams.swift */,
+			);
+			name = Models;
+			path = QuietNest/Models;
 			sourceTree = "<group>";
 		};
 		ED1E13B88BDCD1776A6A5435 /* App */ = {
@@ -47,7 +103,11 @@
 		F1E760CBC9C975D96A2733B0 = {
 			isa = PBXGroup;
 			children = (
+				65643944301B06A405DED91E /* Assets */,
 				ED1E13B88BDCD1776A6A5435 /* App */,
+				0F58B6F5B8ECC87BB58F9DB1 /* Audio */,
+				AB88D0E2EB78335905ECE591 /* Models */,
+				75700F87D203D74B3990F6BD /* Services */,
 				0234EF1E5427919DF1CEA46E /* Views */,
 				4D3D61D9399BCAFF3C19EFE1 /* Products */,
 			);
@@ -61,6 +121,7 @@
 			buildConfigurationList = BB081ABEF4A4B5FAC6B18763 /* Build configuration list for PBXNativeTarget "QuietNest" */;
 			buildPhases = (
 				B138557A715E7DA11FF88817 /* Sources */,
+				E5F65BD53AD83CBCECD00AA4 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -92,6 +153,7 @@
 			);
 			mainGroup = F1E760CBC9C975D96A2733B0;
 			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -100,13 +162,34 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		E5F65BD53AD83CBCECD00AA4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4A84CCC26600C3A1A9E20956 /* Assets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		B138557A715E7DA11FF88817 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2496A05A3D0C3DFBA71859F4 /* AssetCache.swift in Sources */,
+				40031A7BCEC07506417191AD /* AtomicParamBox.swift in Sources */,
+				BA5BAE953C99621379AB705A /* AudioEngineManager.swift in Sources */,
+				4420F827D06BC9C3BEA7A99F /* AudioManager.swift in Sources */,
 				9CDC4C74CA940AFCA010D725 /* ContentView.swift in Sources */,
+				2B2DD8A6530B1252F3B4E1A3 /* GrainScheduler.swift in Sources */,
+				3666F815BDCC1E7CDDF75AE9 /* GrainVoice.swift in Sources */,
+				AEF31F60390EBFD33A5A2E00 /* NoiseDSP.swift in Sources */,
+				D0AFFBF7B6B2EB897AE7ED55 /* ParamSmoother.swift in Sources */,
 				D6F4C48D391C3E92A30EDF98 /* QuietNestApp.swift in Sources */,
+				F40881C0596631BB84EFAD47 /* TrackParams.swift in Sources */,
+				68A0AC918538E44EAB994352 /* Xoshiro256.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -118,7 +201,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = 3H29ZPLWD7;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -130,6 +212,9 @@
 				);
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				UIBackgroundModes = (
+					audio,
+				);
 			};
 			name = Debug;
 		};
@@ -138,7 +223,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = 3H29ZPLWD7;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -150,6 +234,9 @@
 				);
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				UIBackgroundModes = (
+					audio,
+				);
 			};
 			name = Release;
 		};

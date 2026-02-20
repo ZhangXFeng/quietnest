@@ -16,8 +16,11 @@ targets:
     sources:
       - QuietNest/App
       - QuietNest/Views
-    resources:
-      - QuietNest/Resources
+      - QuietNest/Audio
+      - QuietNest/Models
+      - QuietNest/Services
+      - path: QuietNest/Resources/Assets
+        type: folder
     settings:
       base:
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
@@ -25,6 +28,7 @@ targets:
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_UIStatusBarStyle: UIStatusBarStyleLightContent
         INFOPLIST_KEY_UIUserInterfaceStyle: Dark
+        UIBackgroundModes: [audio]
 schemes:
   QuietNest:
     build:

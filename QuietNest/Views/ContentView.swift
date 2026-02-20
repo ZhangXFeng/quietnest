@@ -55,11 +55,11 @@ private enum BottomPanel {
 }
 
 struct ContentView: View {
+    @StateObject private var audioManager = AudioManager()
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @AppStorage("favoritePresetNamesData") private var favoritePresetNamesData = "[]"
     @AppStorage("customPresetsData") private var customPresetsData = "[]"
     @State private var selectedCategory: SoundCategory = .nature
-    @State private var isPlaying = true
     @State private var showSettings = false
     @State private var activePanel: BottomPanel?
     @State private var selectedPreset = "雨夜书房"
@@ -220,6 +220,7 @@ struct ContentView: View {
                             onSelect: { preset in
                                 selectedPreset = preset.name
                                 tracks = preset.tracks
+                                syncTracksToEngine()
                                 withAnimation(.easeOut(duration: 0.2)) { activePanel = nil }
                             }
                         )
@@ -280,6 +281,9 @@ struct ContentView: View {
             if !hasCompletedOnboarding {
                 showOnboarding = true
             }
+            // 初始化音频引擎并同步默认轨道
+            audioManager.setup()
+            syncTracksToEngine()
         }
         .onReceive(ticker) { _ in
             guard timerActive else { return }
@@ -288,9 +292,13 @@ struct ContentView: View {
                 return
             }
             remainingSeconds -= 1
+            if remainingSeconds == 300 {
+                // 最后 5 分钟开始渐弱淡出
+                audioManager.startFadeOut(durationSec: 300)
+            }
             if remainingSeconds <= 0 {
                 timerActive = false
-                isPlaying = false
+                audioManager.pause()
                 showToast("定时结束")
             }
         }
@@ -446,7 +454,7 @@ struct ContentView: View {
                 )
                 .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.white.opacity(0.05), lineWidth: 1))
 
-            WaveVisualView(isPlaying: isPlaying)
+            WaveVisualView(isPlaying: audioManager.isPlaying)
                 .clipShape(RoundedRectangle(cornerRadius: 18))
 
             if timerActive {
@@ -540,6 +548,9 @@ struct ContentView: View {
                         TrackRowView(track: $track) {
                             removeTrack(track)
                         }
+                        .onChange(of: track.volume) { newValue in
+                            audioManager.updateVolume(name: track.name, volume: newValue)
+                        }
                     }
                 }
             }
@@ -572,9 +583,9 @@ struct ContentView: View {
             }
 
             Button {
-                isPlaying.toggle()
+                audioManager.togglePlayback()
             } label: {
-                Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                Image(systemName: audioManager.isPlaying ? "pause.fill" : "play.fill")
                     .font(.title3.weight(.semibold))
                     .foregroundStyle(.black)
                     .frame(width: 62, height: 62)
@@ -672,6 +683,7 @@ struct ContentView: View {
 
     private func toggleSound(_ sound: SoundItem) {
         if let existing = tracks.firstIndex(where: { $0.name == sound.name }) {
+            audioManager.removeTrack(name: sound.name)
             tracks.remove(at: existing)
             return
         }
@@ -680,9 +692,11 @@ struct ContentView: View {
             return
         }
         tracks.append(Track(emoji: sound.emoji, name: sound.name, volume: 0.5))
+        audioManager.addTrack(name: sound.name, gain: 0.5)
     }
 
     private func removeTrack(_ track: Track) {
+        audioManager.removeTrack(name: track.name)
         tracks.removeAll { $0.id == track.id }
     }
 
@@ -697,6 +711,7 @@ struct ContentView: View {
             return false
         }
         tracks.append(Track(emoji: sound.emoji, name: sound.name, volume: 0.5))
+        audioManager.addTrack(name: sound.name, gain: 0.5)
         return true
     }
 
@@ -707,6 +722,13 @@ struct ContentView: View {
             Track(emoji: $0.emoji, name: $0.name, volume: Double.random(in: 0.2...0.8))
         }
         selectedPreset = "随机音景"
+        syncTracksToEngine()
+    }
+
+    /// 将当前 UI 轨道列表同步到音频引擎
+    private func syncTracksToEngine() {
+        let trackData = tracks.map { (name: $0.name, volume: $0.volume) }
+        audioManager.applyPreset(tracks: trackData)
     }
 
     private func loadPersistedData() {
@@ -786,6 +808,7 @@ struct ContentView: View {
     private func clearTimer() {
         timerActive = false
         remainingSeconds = 0
+        audioManager.cancelFadeOut()
     }
 
     private func formatSeconds(_ total: Int) -> String {
