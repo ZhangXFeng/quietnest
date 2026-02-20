@@ -67,6 +67,64 @@ final class AudioManager: ObservableObject {
         "风雪":   "blizzard",
     ]
 
+    // MARK: - 每种声音的 grain 参数
+
+    /// 声音资产 ID -> 专属 grain 参数
+    /// 未列出的声音使用 TrackParams.granular 默认值
+    private static let grainPresets: [String: GrainPreset] = [
+        // ── 自然 ────────────────────────────────────────────────────────────
+        // 雨声：密集细碎，短粒，轻微 pitch 抖动，宽 pan 包围感
+        "rain":         GrainPreset(density: 0.85, lenMs: 30...70,   pitch: -0.2...0.2,  pan: -0.45...0.45),
+        // 海浪：舒缓宽广，长粒，pitch 变化适中，宽 pan
+        "ocean":        GrainPreset(density: 0.35, lenMs: 250...450, pitch: -0.5...0.5,  pan: -0.4...0.4),
+        // 溪流：中等密度，中短粒，轻快感
+        "stream":       GrainPreset(density: 0.70, lenMs: 50...110,  pitch: -0.3...0.3,  pan: -0.35...0.35),
+        // 微风：稀疏，超长粒，几乎无 pitch，飘逸感
+        "wind":         GrainPreset(density: 0.25, lenMs: 350...650, pitch: -0.1...0.1,  pan: -0.3...0.3),
+        // 雷声：极稀疏，超长粒，低频感强，无 pitch
+        "thunder":      GrainPreset(density: 0.15, lenMs: 400...800, pitch:  0.0...0.0,  pan: -0.2...0.2),
+        // 鸟鸣：稀疏短促，高频音节感
+        "birds":        GrainPreset(density: 0.30, lenMs: 20...50,   pitch: -0.4...0.6,  pan: -0.4...0.4),
+        // 蛙鸣：中等密度，短粒，节奏感
+        "frogs":        GrainPreset(density: 0.45, lenMs: 40...80,   pitch: -0.2...0.3,  pan: -0.3...0.3),
+        // 蟋蟀：高密度，极短粒，颤音质感
+        "crickets":     GrainPreset(density: 0.90, lenMs: 15...30,   pitch: -0.1...0.1,  pan: -0.2...0.2),
+        // 篝火：中高密度，短粒，随机爆裂感
+        "campfire":     GrainPreset(density: 0.65, lenMs: 25...55,   pitch: -0.15...0.15, pan: -0.25...0.25),
+        // 落叶：中等密度，中短粒，沙沙感
+        "leaves":       GrainPreset(density: 0.55, lenMs: 35...75,   pitch: -0.2...0.2,  pan: -0.35...0.35),
+        // 松林风：稀疏，长粒，低沉宽广
+        "forest_wind":  GrainPreset(density: 0.28, lenMs: 300...600, pitch: -0.1...0.15, pan: -0.4...0.4),
+        // 瀑布：高密度，中短粒，连续冲击感
+        "waterfall":    GrainPreset(density: 0.80, lenMs: 45...90,   pitch: -0.25...0.25, pan: -0.4...0.4),
+        // ── 城市 ────────────────────────────────────────────────────────────
+        // 咖啡馆：中密度，中粒，环境感
+        "cafe":         GrainPreset(density: 0.50, lenMs: 80...160,  pitch: -0.1...0.1,  pan: -0.3...0.3),
+        // 图书馆：极稀疏，长粒，静谧感
+        "library":      GrainPreset(density: 0.15, lenMs: 200...400, pitch:  0.0...0.0,  pan: -0.1...0.1),
+        // 钟摆：稀疏，中粒，节奏感（几乎无 pitch 变化）
+        "clock":        GrainPreset(density: 0.20, lenMs: 60...100,  pitch:  0.0...0.0,  pan: -0.05...0.05),
+        // 空调：高密度，长粒，平稳连续
+        "aircon":       GrainPreset(density: 0.90, lenMs: 200...350, pitch: -0.05...0.05, pan: -0.15...0.15),
+        // 风扇：高密度，中粒，平稳
+        "fan":          GrainPreset(density: 0.85, lenMs: 100...200, pitch: -0.08...0.08, pan: -0.2...0.2),
+        // 火车：中高密度，中粒，节律感
+        "train":        GrainPreset(density: 0.60, lenMs: 100...200, pitch: -0.1...0.1,  pan: -0.3...0.3),
+        // 机舱：高密度，长粒，低频包围
+        "airplane":     GrainPreset(density: 0.88, lenMs: 250...450, pitch: -0.05...0.05, pan: -0.3...0.3),
+        // 行驶：中高密度，中长粒，路面起伏感
+        "driving":      GrainPreset(density: 0.70, lenMs: 150...300, pitch: -0.1...0.1,  pan: -0.25...0.25),
+        // 夜街：低密度，中长粒，零星声响
+        "night_street": GrainPreset(density: 0.30, lenMs: 100...250, pitch: -0.2...0.2,  pan: -0.4...0.4),
+        // 雨窗：中高密度，短中粒，玻璃感清脆
+        "rain_window":  GrainPreset(density: 0.72, lenMs: 30...80,   pitch: -0.15...0.15, pan: -0.3...0.3),
+        // ── 预设专属 ────────────────────────────────────────────────────────
+        "seagull":      GrainPreset(density: 0.25, lenMs: 30...70,   pitch: -0.3...0.5,  pan: -0.45...0.45),
+        "jazz":         GrainPreset(density: 0.40, lenMs: 80...180,  pitch: -0.2...0.2,  pan: -0.35...0.35),
+        "cat":          GrainPreset(density: 0.20, lenMs: 60...140,  pitch: -0.3...0.3,  pan: -0.15...0.15),
+        "blizzard":     GrainPreset(density: 0.75, lenMs: 200...400, pitch: -0.08...0.08, pan: -0.4...0.4),
+    ]
+
     // MARK: - 生命周期
 
     func setup() {
@@ -115,8 +173,17 @@ final class AudioManager: ObservableObject {
             // 脑波频率 MVP 先用粉噪音低通近似
             params = .noise(.pink, gain: gain, lpHz: 500, seed: seed)
         } else {
-            // 自然/城市类声音 -> 粒子合成
-            params = .granular(soundId: soundId, gain: gain, seed: seed)
+            // 自然/城市类声音 -> 粒子合成，使用声音专属 grain 参数
+            let preset = Self.grainPresets[soundId]
+            params = .granular(
+                soundId: soundId,
+                gain: gain,
+                density: preset?.density ?? 0.5,
+                grainLenMs: preset?.lenMs ?? 80...160,
+                pitchRange: preset?.pitch ?? -0.3...0.3,
+                panRange: preset?.pan ?? -0.3...0.3,
+                seed: seed
+            )
         }
 
         engine.addTrack(params)
@@ -185,4 +252,14 @@ final class AudioManager: ObservableObject {
         // 自然/城市类：映射到英文资产 ID；未匹配时回退到中文名
         return Self.assetIdMap[name] ?? name
     }
+}
+
+// MARK: - GrainPreset
+
+/// 每种声音的粒子合成参数集合
+private struct GrainPreset {
+    let density: Float
+    let lenMs: ClosedRange<Float>
+    let pitch: ClosedRange<Float>
+    let pan: ClosedRange<Float>
 }
