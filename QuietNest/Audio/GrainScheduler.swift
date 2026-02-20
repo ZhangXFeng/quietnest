@@ -1,4 +1,5 @@
 import AVFoundation
+import os
 
 /// 粒子调度器 — 在音频线程 render 回调中执行
 /// 从预加载的素材 buffer 中随机选取 grain 并叠加输出
@@ -10,8 +11,9 @@ final class GrainScheduler {
     static let windowSize = 1024
     static let sampleRate: Float = 48_000
 
-    // MARK: - 素材（控制线程加载后赋值，音频线程只读）
+    // MARK: - 素材（主线程写入，音频线程只读，os_unfair_lock 保护）
 
+    private let assetLock: UnsafeMutablePointer<os_unfair_lock>
     private var audioBuffer: AVAudioPCMBuffer?   // 持有 buffer 防止被 LRU 驱逐
     private var pcmData: UnsafePointer<Float>?
     private var pcmFrameCount: Int = 0
@@ -38,6 +40,8 @@ final class GrainScheduler {
         self.rng = Xoshiro256(seed: seed)
         self.gainSmoother = ParamSmoother(initial: params.gain)
         self.paramBox = AtomicParamBox(params)
+        self.assetLock = .allocate(capacity: 1)
+        self.assetLock.initialize(to: os_unfair_lock())
 
         // 预计算 Hann 窗
         var window = [Float](repeating: 0, count: Self.windowSize)
@@ -47,13 +51,22 @@ final class GrainScheduler {
         self.hannWindow = window
     }
 
-    // MARK: - 素材加载（控制线程调用）
+    deinit {
+        assetLock.deinitialize(count: 1)
+        assetLock.deallocate()
+    }
+
+    // MARK: - 素材加载（主线程调用）
 
     func loadAsset(buffer: AVAudioPCMBuffer) {
         guard let channelData = buffer.floatChannelData else { return }
-        self.audioBuffer = buffer               // 持有引用，防止 LRU 驱逐后指针悬空
-        self.pcmData = UnsafePointer(channelData[0])
-        self.pcmFrameCount = Int(buffer.frameLength)
+        let ptr = UnsafePointer(channelData[0])
+        let count = Int(buffer.frameLength)
+        os_unfair_lock_lock(assetLock)
+        self.audioBuffer = buffer   // 持有引用，防止 LRU 驱逐后指针悬空
+        self.pcmData = ptr
+        self.pcmFrameCount = count
+        os_unfair_lock_unlock(assetLock)
     }
 
     // MARK: - 参数更新（主线程调用）
@@ -65,7 +78,12 @@ final class GrainScheduler {
     // MARK: - 渲染（音频线程调用）
 
     func render(frameCount: Int, abl: UnsafeMutableAudioBufferListPointer) {
-        guard let pcm = pcmData, pcmFrameCount > 0 else { return }
+        // 在锁下拷贝 asset 指针（拷贝后锁外使用，避免锁住整个 render 循环）
+        os_unfair_lock_lock(assetLock)
+        let pcm = pcmData
+        let pcmLen = pcmFrameCount
+        os_unfair_lock_unlock(assetLock)
+        guard let pcm, pcmLen > 0 else { return }
 
         let params = paramBox.load()
         gainSmoother.setTarget(params.gain)
@@ -79,7 +97,7 @@ final class GrainScheduler {
             for frame in 0..<frameCount {
                 // 1) 按调度间隔触发新 grain
                 if currentSample >= nextSpawnSample {
-                    spawnGrain(params: params, pcmLen: pcmFrameCount)
+                    spawnGrain(params: params, pcmLen: pcmLen)
                     scheduleNext(params: params)
                 }
 

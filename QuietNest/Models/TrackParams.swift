@@ -16,7 +16,8 @@ enum NoiseType: String, Codable, CaseIterable {
 
 /// 轨道参数（用于引擎层）
 struct TrackParams {
-    let soundId: String
+    let soundId: String         // 引擎唯一 key（也用于 AssetCache 查找，除非 assetId 另行指定）
+    let assetId: String         // 资产文件名（默认等于 soundId；预览时可单独指定）
     let type: TrackType
     var gain: Float             // 0...1
     var lpHz: Float             // 低通截止频率 500...16000
@@ -35,9 +36,26 @@ struct TrackParams {
 
     var seed: UInt64
 
+    /// 返回 soundId 替换后的副本（用于预览）
+    func withSoundId(_ newId: String) -> TrackParams {
+        TrackParams(
+            soundId: newId, assetId: assetId, type: type,
+            gain: gain, lpHz: lpHz,
+            grainLenMsMin: grainLenMsMin, grainLenMsMax: grainLenMsMax,
+            density: density,
+            pitchMin: pitchMin, pitchMax: pitchMax,
+            panMin: panMin, panMax: panMax,
+            noiseType: noiseType, seed: seed
+        )
+    }
+
     /// 创建粒子合成轨道参数
+    /// - Parameters:
+    ///   - soundId: 引擎唯一 key；assetId 默认与 soundId 相同
+    ///   - assetId: 资产文件名（不含后缀），nil 时使用 soundId
     static func granular(
         soundId: String,
+        assetId: String? = nil,
         gain: Float = 0.5,
         density: Float = 0.5,
         grainLenMs: ClosedRange<Float> = 80...160,
@@ -48,6 +66,7 @@ struct TrackParams {
     ) -> TrackParams {
         TrackParams(
             soundId: soundId,
+            assetId: assetId ?? soundId,
             type: .granular,
             gain: gain,
             lpHz: lpHz,
@@ -72,6 +91,7 @@ struct TrackParams {
     ) -> TrackParams {
         TrackParams(
             soundId: noiseType.rawValue + "_noise",
+            assetId: noiseType.rawValue + "_noise",
             type: .dsp,
             gain: gain,
             lpHz: lpHz,

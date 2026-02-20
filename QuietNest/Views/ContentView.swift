@@ -259,7 +259,7 @@ struct ContentView: View {
                 existingTrackNames: Set(tracks.map(\.name)),
                 trackCount: tracks.count,
                 onPreview: { sound in
-                    showToast("预览：\(sound.name)")
+                    audioManager.previewSound(name: sound.name)
                 },
                 onAdd: { sound in
                     _ = addTrackFromLibrary(sound)
@@ -525,7 +525,7 @@ struct ContentView: View {
                             .onEnded { toggleSound(sound) }
                             .exclusively(
                                 before: TapGesture(count: 1)
-                                    .onEnded { showToast("预览：\(sound.name)") }
+                                    .onEnded { audioManager.previewSound(name: sound.name) }
                             )
                     )
                 }

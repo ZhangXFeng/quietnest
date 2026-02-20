@@ -107,7 +107,7 @@ final class AudioEngineManager {
         case .granular:
             let trackSeed = Xoshiro256.derive(seed: params.seed, key: params.soundId)
             let scheduler = GrainScheduler(seed: trackSeed, params: params)
-            assetCache.loadAsync(params.soundId) { [weak scheduler] buffer in
+            assetCache.loadAsync(params.assetId) { [weak scheduler] buffer in
                 if let buffer { scheduler?.loadAsset(buffer: buffer) }
             }
             slotDrivers[slotIdx].activate(soundId: params.soundId, grainScheduler: scheduler, params: params)

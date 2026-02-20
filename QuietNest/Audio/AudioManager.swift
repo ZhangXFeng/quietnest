@@ -217,16 +217,70 @@ final class AudioManager: ObservableObject {
         }
     }
 
-    /// 随机音景
+    /// 随机音景（用 Xoshiro256 保证可复现）
     func randomize(allSoundNames: [String], seed: UInt64) {
         removeAllTracks()
         var rng = Xoshiro256(seed: seed)
         let count = rng.nextInt(in: 2...4)
-        let shuffled = allSoundNames.shuffled()
-        for i in 0..<min(count, shuffled.count) {
-            let vol = Float(rng.nextFloat(in: 0.2...0.8))
-            addTrack(name: shuffled[i], gain: vol, seed: seed)
+        // 用 rng 做 Fisher-Yates shuffle 前 count 项
+        var pool = allSoundNames
+        for i in 0..<min(count, pool.count) {
+            let j = i + rng.nextInt(in: 0...(pool.count - 1 - i))
+            pool.swapAt(i, j)
+            let vol = rng.nextFloat(in: 0.2...0.8)
+            addTrack(name: pool[i], gain: vol, seed: seed)
         }
+    }
+
+    // MARK: - 预览（2 秒自动停止）
+
+    private static let previewSoundId = "__preview__"
+    private var previewTask: DispatchWorkItem?
+
+    /// 预览一段声音，2 秒后自动停止
+    /// 若声音已作为普通轨道在播放，则跳过（它已经在发声）
+    func previewSound(name: String) {
+        let soundId = soundIdForName(name)
+        // 已经在播放就不重复加
+        if activeTrackIds.contains(soundId) { return }
+
+        stopPreview()
+
+        let previewId = Self.previewSoundId
+        let params: TrackParams
+        if let noiseType = Self.noiseSounds[name] {
+            params = .noise(noiseType, gain: 0.55, seed: 0)
+                .withSoundId(previewId)
+        } else if Self.brainSounds.contains(name) {
+            params = .noise(.pink, gain: 0.55, lpHz: 500, seed: 0)
+                .withSoundId(previewId)
+        } else {
+            let preset = Self.grainPresets[soundId]
+            params = .granular(
+                soundId: previewId,
+                assetId: soundId,          // 加载真实资产，但用独立 key
+                gain: 0.55,
+                density: preset?.density ?? 0.5,
+                grainLenMs: preset?.lenMs ?? 80...160,
+                pitchRange: preset?.pitch ?? -0.3...0.3,
+                panRange: preset?.pan ?? -0.3...0.3,
+                seed: 0
+            )
+        }
+
+        engine.addTrack(params)
+
+        let task = DispatchWorkItem { [weak self] in
+            self?.stopPreview()
+        }
+        previewTask = task
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: task)
+    }
+
+    func stopPreview() {
+        previewTask?.cancel()
+        previewTask = nil
+        engine.removeTrack(Self.previewSoundId)
     }
 
     // MARK: - 定时
