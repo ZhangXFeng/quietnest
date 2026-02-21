@@ -129,24 +129,23 @@ final class AudioEngineManager {
             print("[AudioEngine] addTrack DSP: \(params.soundId) → slot \(slotIdx)")
 
         case .granular:
-            let trackSeed = Xoshiro256.derive(seed: params.seed, key: params.soundId)
-            let scheduler = GrainScheduler(seed: trackSeed, params: params)
-            print("[AudioEngine] addTrack granular: \(params.soundId) assetId=\(params.assetId) → slot \(slotIdx)")
+            let loopPlayer = LoopPlayer(params: params)
+            print("[AudioEngine] addTrack loop: \(params.soundId) assetId=\(params.assetId) → slot \(slotIdx)")
             if let cached = assetCache.cachedBuffer(for: params.assetId) {
                 print("[AudioEngine] assetId=\(params.assetId) found in cache, loading sync")
-                scheduler.loadAsset(buffer: cached)
+                loopPlayer.loadAsset(buffer: cached)
             } else {
                 print("[AudioEngine] assetId=\(params.assetId) not cached, queuing async load")
-                assetCache.loadAsync(params.assetId) { [weak scheduler] buffer in
+                assetCache.loadAsync(params.assetId) { [weak loopPlayer] buffer in
                     if let buffer {
                         print("[AudioEngine] async load complete for \(params.assetId), calling loadAsset")
-                        scheduler?.loadAsset(buffer: buffer)
+                        loopPlayer?.loadAsset(buffer: buffer)
                     } else {
                         print("[AudioEngine] ❌ async load returned nil for \(params.assetId)")
                     }
                 }
             }
-            slotDrivers[slotIdx].activate(soundId: params.soundId, grainScheduler: scheduler, params: params)
+            slotDrivers[slotIdx].activate(soundId: params.soundId, loopPlayer: loopPlayer, params: params)
 
         case .binaural:
             let binaural = BinauralBeatDSP(beatHz: params.beatHz, params: params)
@@ -304,13 +303,13 @@ final class AudioEngineManager {
 
 // MARK: - TrackSlotDriver
 
-/// 单槽驱动：持有 NoiseDSP / GrainScheduler / BinauralBeatDSP，用 os_unfair_lock 保护主线程写 / 音频线程读
+/// 单槽驱动：持有 NoiseDSP / LoopPlayer / BinauralBeatDSP，用 os_unfair_lock 保护主线程写 / 音频线程读
 private final class TrackSlotDriver {
 
     private let unfairLock: UnsafeMutablePointer<os_unfair_lock>
     private var _soundId: String?
     private var _noiseDSP: NoiseDSP?
-    private var _grainScheduler: GrainScheduler?
+    private var _loopPlayer: LoopPlayer?
     private var _binauralDSP: BinauralBeatDSP?
     private var _params: TrackParams?
 
@@ -334,16 +333,16 @@ private final class TrackSlotDriver {
         os_unfair_lock_lock(unfairLock)
         _soundId = soundId
         _noiseDSP = noiseDSP
-        _grainScheduler = nil
+        _loopPlayer = nil
         _binauralDSP = nil
         _params = params
         os_unfair_lock_unlock(unfairLock)
     }
 
-    func activate(soundId: String, grainScheduler: GrainScheduler, params: TrackParams) {
+    func activate(soundId: String, loopPlayer: LoopPlayer, params: TrackParams) {
         os_unfair_lock_lock(unfairLock)
         _soundId = soundId
-        _grainScheduler = grainScheduler
+        _loopPlayer = loopPlayer
         _noiseDSP = nil
         _binauralDSP = nil
         _params = params
@@ -355,7 +354,7 @@ private final class TrackSlotDriver {
         _soundId = soundId
         _binauralDSP = binauralDSP
         _noiseDSP = nil
-        _grainScheduler = nil
+        _loopPlayer = nil
         _params = params
         os_unfair_lock_unlock(unfairLock)
     }
@@ -364,7 +363,7 @@ private final class TrackSlotDriver {
         os_unfair_lock_lock(unfairLock)
         _soundId = nil
         _noiseDSP = nil
-        _grainScheduler = nil
+        _loopPlayer = nil
         _binauralDSP = nil
         _params = nil
         os_unfair_lock_unlock(unfairLock)
@@ -374,14 +373,14 @@ private final class TrackSlotDriver {
         os_unfair_lock_lock(unfairLock)
         _params?.gain = gain
         let dsp = _noiseDSP
-        let scheduler = _grainScheduler
+        let loopPlayer = _loopPlayer
         let binaural = _binauralDSP
         let params = _params
         os_unfair_lock_unlock(unfairLock)
 
         guard let params else { return }
         dsp?.updateParams(params)
-        scheduler?.updateParams(params)
+        loopPlayer?.updateParams(params)
         binaural?.updateParams(params)
     }
 
@@ -390,14 +389,14 @@ private final class TrackSlotDriver {
     func render(frameCount: Int, abl: UnsafeMutableAudioBufferListPointer) {
         os_unfair_lock_lock(unfairLock)
         let dsp = _noiseDSP
-        let scheduler = _grainScheduler
+        let loopPlayer = _loopPlayer
         let binaural = _binauralDSP
         os_unfair_lock_unlock(unfairLock)
 
         if let dsp {
             dsp.render(frameCount: frameCount, abl: abl)
-        } else if let scheduler {
-            scheduler.render(frameCount: frameCount, abl: abl)
+        } else if let loopPlayer {
+            loopPlayer.render(frameCount: frameCount, abl: abl)
         } else if let binaural {
             binaural.render(frameCount: frameCount, abl: abl)
         }

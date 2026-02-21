@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -17,9 +17,11 @@
 		9CDC4C74CA940AFCA010D725 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71622D3A7E4BC3E01A5CDBC6 /* ContentView.swift */; };
 		AEF31F60390EBFD33A5A2E00 /* NoiseDSP.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4AF6B9CF987D29664A46367 /* NoiseDSP.swift */; };
 		BA5BAE953C99621379AB705A /* AudioEngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC543F6F0242F7C49146E88A /* AudioEngineManager.swift */; };
+		BE491F9090EDE970D9F6E791 /* AppIcon.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BF57C932E23D0C9CCC7F5DB9 /* AppIcon.xcassets */; };
 		D0AFFBF7B6B2EB897AE7ED55 /* ParamSmoother.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2708EC3079B4B909E2CCC464 /* ParamSmoother.swift */; };
 		D6F4C48D391C3E92A30EDF98 /* QuietNestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 866C2AB98BA64D952AC6279D /* QuietNestApp.swift */; };
 		F40881C0596631BB84EFAD47 /* TrackParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0252C2D686ED0C14B15EA072 /* TrackParams.swift */; };
+		FA1B2C3D4E5F6A7B8C9D0E1F /* LoopPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1B2C3D4E5F6A7B8C9D0E1F /* LoopPlayer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,7 +34,9 @@
 		839F1760773979638131468B /* GrainVoice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrainVoice.swift; sourceTree = "<group>"; };
 		866C2AB98BA64D952AC6279D /* QuietNestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuietNestApp.swift; sourceTree = "<group>"; };
 		B5629BD1A8FEF6269C2F6420 /* GrainScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrainScheduler.swift; sourceTree = "<group>"; };
-		BE2384A27489EDAF723E3718 /* QuietNest.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = QuietNest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EA1B2C3D4E5F6A7B8C9D0E1F /* LoopPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopPlayer.swift; sourceTree = "<group>"; };
+		BE2384A27489EDAF723E3718 /* QuietNest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuietNest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BF57C932E23D0C9CCC7F5DB9 /* AppIcon.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = AppIcon.xcassets; sourceTree = "<group>"; };
 		DC543F6F0242F7C49146E88A /* AudioEngineManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineManager.swift; sourceTree = "<group>"; };
 		DC6C3F91DFD4EF847B76A570 /* AtomicParamBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomicParamBox.swift; sourceTree = "<group>"; };
 		E4AF6B9CF987D29664A46367 /* NoiseDSP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoiseDSP.swift; sourceTree = "<group>"; };
@@ -40,6 +44,15 @@
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		000EE72E729ABC98018D094D /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				BF57C932E23D0C9CCC7F5DB9 /* AppIcon.xcassets */,
+			);
+			name = Resources;
+			path = QuietNest/Resources;
+			sourceTree = "<group>";
+		};
 		0234EF1E5427919DF1CEA46E /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -56,6 +69,7 @@
 				3DB9D16D15CD09954A8F955E /* AudioManager.swift */,
 				B5629BD1A8FEF6269C2F6420 /* GrainScheduler.swift */,
 				839F1760773979638131468B /* GrainVoice.swift */,
+				EA1B2C3D4E5F6A7B8C9D0E1F /* LoopPlayer.swift */,
 				E4AF6B9CF987D29664A46367 /* NoiseDSP.swift */,
 				2708EC3079B4B909E2CCC464 /* ParamSmoother.swift */,
 				F3EC1A6F36CD52D19E4E1850 /* Xoshiro256.swift */,
@@ -107,6 +121,7 @@
 				ED1E13B88BDCD1776A6A5435 /* App */,
 				0F58B6F5B8ECC87BB58F9DB1 /* Audio */,
 				AB88D0E2EB78335905ECE591 /* Models */,
+				000EE72E729ABC98018D094D /* Resources */,
 				75700F87D203D74B3990F6BD /* Services */,
 				0234EF1E5427919DF1CEA46E /* Views */,
 				4D3D61D9399BCAFF3C19EFE1 /* Products */,
@@ -153,7 +168,6 @@
 			);
 			mainGroup = F1E760CBC9C975D96A2733B0;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -167,6 +181,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BE491F9090EDE970D9F6E791 /* AppIcon.xcassets in Resources */,
 				4A84CCC26600C3A1A9E20956 /* Assets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -185,6 +200,7 @@
 				9CDC4C74CA940AFCA010D725 /* ContentView.swift in Sources */,
 				2B2DD8A6530B1252F3B4E1A3 /* GrainScheduler.swift in Sources */,
 				3666F815BDCC1E7CDDF75AE9 /* GrainVoice.swift in Sources */,
+				FA1B2C3D4E5F6A7B8C9D0E1F /* LoopPlayer.swift in Sources */,
 				AEF31F60390EBFD33A5A2E00 /* NoiseDSP.swift in Sources */,
 				D0AFFBF7B6B2EB897AE7ED55 /* ParamSmoother.swift in Sources */,
 				D6F4C48D391C3E92A30EDF98 /* QuietNestApp.swift in Sources */,
@@ -201,6 +217,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = JRCNT57CRW;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -212,9 +229,7 @@
 				);
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				UIBackgroundModes = (
-					audio,
-				);
+				UIBackgroundModes = audio;
 			};
 			name = Debug;
 		};
@@ -223,6 +238,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = JRCNT57CRW;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -234,9 +250,7 @@
 				);
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				UIBackgroundModes = (
-					audio,
-				);
+				UIBackgroundModes = audio;
 			};
 			name = Release;
 		};
