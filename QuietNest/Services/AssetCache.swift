@@ -107,43 +107,48 @@ final class AssetCache {
         }
 
         guard let url = fileURL else {
-            print("[AssetCache] Asset not found: \(soundId)")
+            print("[AssetCache] ❌ Asset not found: \(soundId) (tried subdirectory:Assets and root)")
             return nil
         }
+        print("[AssetCache] Found: \(url.lastPathComponent)")
 
         do {
             let audioFile = try AVAudioFile(forReading: url)
-            // 目标格式：48kHz mono Float32（GrainScheduler 所需）
             let targetFormat = AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1)!
             let frameCount = AVAudioFrameCount(audioFile.length)
+            print("[AssetCache] \(soundId): fileFormat=\(audioFile.fileFormat) processingFormat=\(audioFile.processingFormat) frames=\(frameCount)")
 
-            // 关键：始终用 audioFile.processingFormat 创建读取缓冲区。
-            // 若改用独立构造的 targetFormat，可能因 channelLayout tag 不同导致
-            // read(into:) 抛出 "format mismatch" 错误，静默返回 nil。
             guard let srcBuf = AVAudioPCMBuffer(pcmFormat: audioFile.processingFormat,
-                                                frameCapacity: frameCount) else { return nil }
+                                                frameCapacity: frameCount) else {
+                print("[AssetCache] ❌ srcBuf alloc failed for \(soundId)")
+                return nil
+            }
             try audioFile.read(into: srcBuf)
+            print("[AssetCache] Read \(srcBuf.frameLength) frames for \(soundId)")
 
             guard srcBuf.frameLength > 0 else {
-                print("[AssetCache] Empty audio for \(soundId)")
+                print("[AssetCache] ❌ Empty audio for \(soundId)")
                 return nil
             }
 
-            // 若 processingFormat 已是目标格式，直接返回（无需转换）
             if audioFile.processingFormat == targetFormat {
+                print("[AssetCache] ✓ Direct return (format matches) for \(soundId)")
                 return srcBuf
             }
 
-            // 否则通过 AVAudioConverter 转换到 48kHz mono Float32
+            print("[AssetCache] Converting format for \(soundId): \(audioFile.processingFormat) -> \(targetFormat)")
             guard let converter = AVAudioConverter(from: audioFile.processingFormat, to: targetFormat) else {
-                print("[AssetCache] No converter for \(soundId)")
+                print("[AssetCache] ❌ No converter for \(soundId)")
                 return nil
             }
             let outputFrameCount = AVAudioFrameCount(
                 Double(srcBuf.frameLength) * 48_000 / audioFile.processingFormat.sampleRate
             )
             guard let outBuf = AVAudioPCMBuffer(pcmFormat: targetFormat,
-                                                frameCapacity: max(outputFrameCount, 1)) else { return nil }
+                                                frameCapacity: max(outputFrameCount, 1)) else {
+                print("[AssetCache] ❌ outBuf alloc failed for \(soundId)")
+                return nil
+            }
             var isDone = false
             let inputBlock: AVAudioConverterInputBlock = { _, outStatus in
                 if isDone { outStatus.pointee = .noDataNow; return nil }
@@ -154,12 +159,17 @@ final class AssetCache {
             var error: NSError?
             converter.convert(to: outBuf, error: &error, withInputFrom: inputBlock)
             if let error {
-                print("[AssetCache] Convert error for \(soundId): \(error)")
+                print("[AssetCache] ❌ Convert error for \(soundId): \(error)")
                 return nil
             }
+            guard outBuf.frameLength > 0 else {
+                print("[AssetCache] ❌ Converter produced 0 frames for \(soundId)")
+                return nil
+            }
+            print("[AssetCache] ✓ Converted \(outBuf.frameLength) frames for \(soundId)")
             return outBuf
         } catch {
-            print("[AssetCache] Load error for \(soundId): \(error)")
+            print("[AssetCache] ❌ Load error for \(soundId): \(error)")
             return nil
         }
     }

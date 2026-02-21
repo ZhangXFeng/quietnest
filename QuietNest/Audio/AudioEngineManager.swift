@@ -88,6 +88,7 @@ final class AudioEngineManager {
 
         try engine.start()
         isPlaying = true
+        print("[AudioEngine] ✓ Engine started. outputVolume=\(engine.mainMixerNode.outputVolume) slots=\(Self.maxSlots)")
 
         NotificationCenter.default.addObserver(
             self, selector: #selector(handleInterruption),
@@ -116,16 +117,24 @@ final class AudioEngineManager {
         case .dsp:
             let dsp = NoiseDSP(type: params.noiseType, params: params)
             slotDrivers[slotIdx].activate(soundId: params.soundId, noiseDSP: dsp, params: params)
+            print("[AudioEngine] addTrack DSP: \(params.soundId) → slot \(slotIdx)")
 
         case .granular:
             let trackSeed = Xoshiro256.derive(seed: params.seed, key: params.soundId)
             let scheduler = GrainScheduler(seed: trackSeed, params: params)
-            // 先检查同步缓存（避免已缓存素材因 async 调度产生的短暂静音）
+            print("[AudioEngine] addTrack granular: \(params.soundId) assetId=\(params.assetId) → slot \(slotIdx)")
             if let cached = assetCache.cachedBuffer(for: params.assetId) {
+                print("[AudioEngine] assetId=\(params.assetId) found in cache, loading sync")
                 scheduler.loadAsset(buffer: cached)
             } else {
+                print("[AudioEngine] assetId=\(params.assetId) not cached, queuing async load")
                 assetCache.loadAsync(params.assetId) { [weak scheduler] buffer in
-                    if let buffer { scheduler?.loadAsset(buffer: buffer) }
+                    if let buffer {
+                        print("[AudioEngine] async load complete for \(params.assetId), calling loadAsset")
+                        scheduler?.loadAsset(buffer: buffer)
+                    } else {
+                        print("[AudioEngine] ❌ async load returned nil for \(params.assetId)")
+                    }
                 }
             }
             slotDrivers[slotIdx].activate(soundId: params.soundId, grainScheduler: scheduler, params: params)
@@ -133,6 +142,7 @@ final class AudioEngineManager {
         case .binaural:
             let binaural = BinauralBeatDSP(beatHz: params.beatHz, params: params)
             slotDrivers[slotIdx].activate(soundId: params.soundId, binauralDSP: binaural, params: params)
+            print("[AudioEngine] addTrack binaural: \(params.soundId) → slot \(slotIdx)")
         }
 
         slotMap[params.soundId] = slotIdx
@@ -169,16 +179,19 @@ final class AudioEngineManager {
     func play() {
         guard !isPlaying else { return }
         do {
+            print("[AudioEngine] play() called. activeSlots=\(slotMap.count) outputVolume=\(engine.mainMixerNode.outputVolume) engineRunning=\(engine.isRunning)")
             // 仅重新激活 session，不重新 setCategory（避免触发图重配置）
             try AVAudioSession.sharedInstance().setActive(true)
             // 淡出后 outputVolume 可能为 0，恢复默认音量
             if engine.mainMixerNode.outputVolume < 0.05 {
                 engine.mainMixerNode.outputVolume = 0.85
+                print("[AudioEngine] play() restored outputVolume to 0.85")
             }
             try engine.start()
             isPlaying = true
+            print("[AudioEngine] ✓ play() success. outputVolume=\(engine.mainMixerNode.outputVolume)")
         } catch {
-            print("[AudioEngine] play failed: \(error)")
+            print("[AudioEngine] ❌ play failed: \(error)")
         }
     }
 

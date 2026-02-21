@@ -59,11 +59,15 @@ final class GrainScheduler {
     // MARK: - 素材加载（主线程调用）
 
     func loadAsset(buffer: AVAudioPCMBuffer) {
-        guard let channelData = buffer.floatChannelData else { return }
+        guard let channelData = buffer.floatChannelData else {
+            print("[GrainScheduler] ❌ loadAsset: floatChannelData nil (format=\(buffer.format))")
+            return
+        }
         let ptr = UnsafePointer(channelData[0])
         let count = Int(buffer.frameLength)
+        print("[GrainScheduler] ✓ loadAsset: \(count) frames loaded")
         os_unfair_lock_lock(assetLock)
-        self.audioBuffer = buffer   // 持有引用，防止 LRU 驱逐后指针悬空
+        self.audioBuffer = buffer
         self.pcmData = ptr
         self.pcmFrameCount = count
         os_unfair_lock_unlock(assetLock)
@@ -75,6 +79,10 @@ final class GrainScheduler {
         paramBox.store(params)
     }
 
+    // 诊断用：仅记录一次
+    nonisolated(unsafe) private var _hasLoggedPCMNil = false
+    nonisolated(unsafe) private var _hasLoggedFirstAudio = false
+
     // MARK: - 渲染（音频线程调用）
 
     func render(frameCount: Int, abl: UnsafeMutableAudioBufferListPointer) {
@@ -83,7 +91,10 @@ final class GrainScheduler {
         let pcm = pcmData
         let pcmLen = pcmFrameCount
         os_unfair_lock_unlock(assetLock)
-        guard let pcm, pcmLen > 0 else { return }
+        guard let pcm, pcmLen > 0 else {
+            if !_hasLoggedPCMNil { _hasLoggedPCMNil = true; print("[GrainScheduler] render: pcmData still nil") }
+            return
+        }
 
         let params = paramBox.load()
         gainSmoother.setTarget(params.gain)
@@ -123,6 +134,10 @@ final class GrainScheduler {
                 outL[frame] += sampleL
                 outR[frame] += sampleR
                 currentSample += 1
+                if !_hasLoggedFirstAudio && (sampleL != 0 || sampleR != 0) {
+                    _hasLoggedFirstAudio = true
+                    print("[GrainScheduler] ✓ First non-zero audio sample generated")
+                }
             }
         }
     }
