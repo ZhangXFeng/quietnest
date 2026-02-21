@@ -121,3 +121,54 @@ final class NoiseDSP {
         1.0 - exp(-2.0 * .pi * cutoffHz / sampleRate)
     }
 }
+
+// MARK: - BinauralBeatDSP
+
+/// 双耳节拍生成器
+/// 左耳：200 Hz 载波正弦波
+/// 右耳：(200 + beatHz) Hz 正弦波
+/// 两者的差频在大脑中产生感知节拍，需要耳机收听
+final class BinauralBeatDSP {
+
+    private let beatHz: Float
+    private var gainSmoother: ParamSmoother
+    private let paramBox: AtomicParamBox<TrackParams>
+
+    private var phaseL: Float = 0
+    private var phaseR: Float = 0
+
+    private static let baseHz: Float = 200.0
+    private static let sampleRate: Float = 48_000
+
+    init(beatHz: Float, params: TrackParams) {
+        self.beatHz = beatHz
+        self.gainSmoother = ParamSmoother(initial: params.gain)
+        self.paramBox = AtomicParamBox(params)
+    }
+
+    func updateParams(_ params: TrackParams) {
+        paramBox.store(params)
+    }
+
+    func render(frameCount: Int, abl: UnsafeMutableAudioBufferListPointer) {
+        let params = paramBox.load()
+        gainSmoother.setTarget(params.gain)
+
+        let outL = abl[0].mData!.assumingMemoryBound(to: Float.self)
+        let outR = abl[1].mData!.assumingMemoryBound(to: Float.self)
+
+        let incL = 2 * Float.pi * Self.baseHz / Self.sampleRate
+        let incR = 2 * Float.pi * (Self.baseHz + beatHz) / Self.sampleRate
+        let twoPi: Float = 2 * .pi
+
+        for i in 0..<frameCount {
+            let gain = gainSmoother.next()
+            outL[i] += gain * sin(phaseL)
+            outR[i] += gain * sin(phaseR)
+            phaseL += incL
+            if phaseL >= twoPi { phaseL -= twoPi }
+            phaseR += incR
+            if phaseR >= twoPi { phaseR -= twoPi }
+        }
+    }
+}

@@ -25,9 +25,13 @@ final class AudioManager: ObservableObject {
         "蓝噪音": .blue
     ]
 
-    /// 频率类声音（DSP 正弦波，MVP 先用噪声近似）
-    private static let brainSounds: Set<String> = [
-        "Delta波", "Theta波", "Alpha波", "Beta波"
+    /// 双耳节拍差频映射（左耳 200Hz，右耳 200+beatHz）
+    /// Delta 0.5-4Hz：深度睡眠  Theta 4-8Hz：冥想/REM  Alpha 8-13Hz：放松专注  Beta 14-30Hz：清醒专注
+    private static let brainBeatHz: [String: Float] = [
+        "Delta波": 2.0,
+        "Theta波": 6.0,
+        "Alpha波": 10.0,
+        "Beta波":  20.0,
     ]
 
     /// 中文声音名称 -> 英文资产文件名（不含后缀）
@@ -169,9 +173,8 @@ final class AudioManager: ObservableObject {
         let params: TrackParams
         if let noiseType = Self.noiseSounds[name] {
             params = .noise(noiseType, gain: gain, seed: seed)
-        } else if Self.brainSounds.contains(name) {
-            // 脑波频率 MVP 先用粉噪音低通近似
-            params = .noise(.pink, gain: gain, lpHz: 500, seed: seed)
+        } else if let beatHz = Self.brainBeatHz[name] {
+            params = .binaural(name: name, beatHz: beatHz, gain: gain)
         } else {
             // 自然/城市类声音 -> 粒子合成，使用声音专属 grain 参数
             let preset = Self.grainPresets[soundId]
@@ -251,8 +254,8 @@ final class AudioManager: ObservableObject {
         if let noiseType = Self.noiseSounds[name] {
             params = .noise(noiseType, gain: 0.55, seed: 0)
                 .withSoundId(previewId)
-        } else if Self.brainSounds.contains(name) {
-            params = .noise(.pink, gain: 0.55, lpHz: 500, seed: 0)
+        } else if let beatHz = Self.brainBeatHz[name] {
+            params = .binaural(name: name, beatHz: beatHz, gain: 0.55)
                 .withSoundId(previewId)
         } else {
             let preset = Self.grainPresets[soundId]
@@ -302,6 +305,9 @@ final class AudioManager: ObservableObject {
     private func soundIdForName(_ name: String) -> String {
         if let noiseType = Self.noiseSounds[name] {
             return noiseType.rawValue + "_noise"
+        }
+        if Self.brainBeatHz[name] != nil {
+            return name + "_binaural"
         }
         // 自然/城市类：映射到英文资产 ID；未匹配时回退到中文名
         return Self.assetIdMap[name] ?? name

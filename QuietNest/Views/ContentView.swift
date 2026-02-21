@@ -90,14 +90,16 @@ struct ContentView: View {
             SoundItem(emoji: "⛈️", name: "雷声"), SoundItem(emoji: "🐦", name: "鸟鸣"),
             SoundItem(emoji: "🐸", name: "蛙鸣"), SoundItem(emoji: "🦗", name: "蟋蟀"),
             SoundItem(emoji: "🔥", name: "篝火"), SoundItem(emoji: "🍃", name: "落叶"),
-            SoundItem(emoji: "🌲", name: "松林风"), SoundItem(emoji: "💦", name: "瀑布")
+            SoundItem(emoji: "🌲", name: "松林风"), SoundItem(emoji: "💦", name: "瀑布"),
+            SoundItem(emoji: "🕊️", name: "海鸥"), SoundItem(emoji: "🌨️", name: "风雪")
         ],
         .city: [
             SoundItem(emoji: "☕", name: "咖啡馆"), SoundItem(emoji: "📚", name: "图书馆"),
             SoundItem(emoji: "🕰️", name: "钟摆"), SoundItem(emoji: "❄️", name: "空调"),
             SoundItem(emoji: "🌀", name: "风扇"), SoundItem(emoji: "🚂", name: "火车"),
             SoundItem(emoji: "✈️", name: "机舱"), SoundItem(emoji: "🚗", name: "行驶"),
-            SoundItem(emoji: "🌃", name: "夜街"), SoundItem(emoji: "🪟", name: "雨窗")
+            SoundItem(emoji: "🌃", name: "夜街"), SoundItem(emoji: "🪟", name: "雨窗"),
+            SoundItem(emoji: "🎷", name: "爵士"), SoundItem(emoji: "🐱", name: "猫咪")
         ],
         .noise: [
             SoundItem(emoji: "⬜", name: "白噪音"), SoundItem(emoji: "🩷", name: "粉噪音"),
@@ -716,13 +718,28 @@ struct ContentView: View {
     }
 
     private func randomizeTracks() {
-        let allSounds = soundsData.values.flatMap { $0 }.shuffled()
-        let pickCount = Int.random(in: 2...4)
-        tracks = Array(allSounds.prefix(pickCount)).map {
-            Track(emoji: $0.emoji, name: $0.name, volume: Double.random(in: 0.2...0.8))
+        let seed = UInt64(Date().timeIntervalSince1970 * 1000)
+        var rng = Xoshiro256(seed: seed)
+
+        // 用同一个 rng 为 UI 生成轨道列表（与 AudioManager.randomize 逻辑一致）
+        let allSounds = soundsData.values.flatMap { $0 }
+        var pool = allSounds
+        let pickCount = rng.nextInt(in: 2...4)
+        var picked: [SoundItem] = []
+        for i in 0..<min(pickCount, pool.count) {
+            let j = i + rng.nextInt(in: 0...(pool.count - 1 - i))
+            pool.swapAt(i, j)
+            picked.append(pool[i])
+        }
+
+        tracks = picked.map {
+            Track(emoji: $0.emoji, name: $0.name, volume: Double(rng.nextFloat(in: 0.2...0.8)))
         }
         selectedPreset = "随机音景"
-        syncTracksToEngine()
+
+        // 同步到引擎（用相同 seed 保证 grain 参数也可复现）
+        let trackData = tracks.map { (name: $0.name, volume: $0.volume) }
+        audioManager.applyPreset(tracks: trackData, seed: seed)
     }
 
     /// 将当前 UI 轨道列表同步到音频引擎

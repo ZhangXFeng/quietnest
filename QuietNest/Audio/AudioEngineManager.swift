@@ -111,6 +111,10 @@ final class AudioEngineManager {
                 if let buffer { scheduler?.loadAsset(buffer: buffer) }
             }
             slotDrivers[slotIdx].activate(soundId: params.soundId, grainScheduler: scheduler, params: params)
+
+        case .binaural:
+            let binaural = BinauralBeatDSP(beatHz: params.beatHz, params: params)
+            slotDrivers[slotIdx].activate(soundId: params.soundId, binauralDSP: binaural, params: params)
         }
 
         slotMap[params.soundId] = slotIdx
@@ -245,13 +249,14 @@ final class AudioEngineManager {
 
 // MARK: - TrackSlotDriver
 
-/// 单槽驱动：持有 NoiseDSP 或 GrainScheduler，用 os_unfair_lock 保护主线程写 / 音频线程读
+/// 单槽驱动：持有 NoiseDSP / GrainScheduler / BinauralBeatDSP，用 os_unfair_lock 保护主线程写 / 音频线程读
 private final class TrackSlotDriver {
 
     private let unfairLock: UnsafeMutablePointer<os_unfair_lock>
     private var _soundId: String?
     private var _noiseDSP: NoiseDSP?
     private var _grainScheduler: GrainScheduler?
+    private var _binauralDSP: BinauralBeatDSP?
     private var _params: TrackParams?
 
     init() {
@@ -275,6 +280,7 @@ private final class TrackSlotDriver {
         _soundId = soundId
         _noiseDSP = noiseDSP
         _grainScheduler = nil
+        _binauralDSP = nil
         _params = params
         os_unfair_lock_unlock(unfairLock)
     }
@@ -284,6 +290,17 @@ private final class TrackSlotDriver {
         _soundId = soundId
         _grainScheduler = grainScheduler
         _noiseDSP = nil
+        _binauralDSP = nil
+        _params = params
+        os_unfair_lock_unlock(unfairLock)
+    }
+
+    func activate(soundId: String, binauralDSP: BinauralBeatDSP, params: TrackParams) {
+        os_unfair_lock_lock(unfairLock)
+        _soundId = soundId
+        _binauralDSP = binauralDSP
+        _noiseDSP = nil
+        _grainScheduler = nil
         _params = params
         os_unfair_lock_unlock(unfairLock)
     }
@@ -293,6 +310,7 @@ private final class TrackSlotDriver {
         _soundId = nil
         _noiseDSP = nil
         _grainScheduler = nil
+        _binauralDSP = nil
         _params = nil
         os_unfair_lock_unlock(unfairLock)
     }
@@ -302,12 +320,14 @@ private final class TrackSlotDriver {
         _params?.gain = gain
         let dsp = _noiseDSP
         let scheduler = _grainScheduler
+        let binaural = _binauralDSP
         let params = _params
         os_unfair_lock_unlock(unfairLock)
 
         guard let params else { return }
         dsp?.updateParams(params)
         scheduler?.updateParams(params)
+        binaural?.updateParams(params)
     }
 
     // MARK: - 音频线程渲染
@@ -316,12 +336,15 @@ private final class TrackSlotDriver {
         os_unfair_lock_lock(unfairLock)
         let dsp = _noiseDSP
         let scheduler = _grainScheduler
+        let binaural = _binauralDSP
         os_unfair_lock_unlock(unfairLock)
 
         if let dsp {
             dsp.render(frameCount: frameCount, abl: abl)
         } else if let scheduler {
             scheduler.render(frameCount: frameCount, abl: abl)
+        } else if let binaural {
+            binaural.render(frameCount: frameCount, abl: abl)
         }
         // 空槽：保持 memset 的零输出
     }
