@@ -120,8 +120,13 @@ final class AudioEngineManager {
         case .granular:
             let trackSeed = Xoshiro256.derive(seed: params.seed, key: params.soundId)
             let scheduler = GrainScheduler(seed: trackSeed, params: params)
-            assetCache.loadAsync(params.assetId) { [weak scheduler] buffer in
-                if let buffer { scheduler?.loadAsset(buffer: buffer) }
+            // 先检查同步缓存（避免已缓存素材因 async 调度产生的短暂静音）
+            if let cached = assetCache.cachedBuffer(for: params.assetId) {
+                scheduler.loadAsset(buffer: cached)
+            } else {
+                assetCache.loadAsync(params.assetId) { [weak scheduler] buffer in
+                    if let buffer { scheduler?.loadAsset(buffer: buffer) }
+                }
             }
             slotDrivers[slotIdx].activate(soundId: params.soundId, grainScheduler: scheduler, params: params)
 

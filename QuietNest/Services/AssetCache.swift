@@ -82,6 +82,12 @@ final class AssetCache {
 
     var cachedSoundIds: [String] { queue.sync { Array(cache.keys) } }
 
+    /// 快速获取已缓存 buffer（同步，供主线程调用）
+    /// 队列空闲时几乎立即返回；如无缓存返回 nil，调用方应退回异步路径
+    func cachedBuffer(for soundId: String) -> AVAudioPCMBuffer? {
+        queue.sync { cache[soundId]?.buffer }
+    }
+
     // MARK: - 内部
 
     private func loadFromBundle(_ soundId: String) -> AVAudioPCMBuffer? {

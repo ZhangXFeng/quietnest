@@ -724,6 +724,8 @@ struct ContentView: View {
         }
         tracks.append(Track(emoji: sound.emoji, name: sound.name, volume: 0.5))
         audioManager.addTrack(name: sound.name, gain: 0.5)
+        // 若引擎暂停，添加轨道后自动恢复播放
+        if !audioManager.isPlaying { audioManager.play() }
         if isBrainSound(sound.name) { showToast("🎧 双耳节拍需戴耳机才有效果") }
         persistTracks()
     }
@@ -746,6 +748,7 @@ struct ContentView: View {
         }
         tracks.append(Track(emoji: sound.emoji, name: sound.name, volume: 0.5))
         audioManager.addTrack(name: sound.name, gain: 0.5)
+        if !audioManager.isPlaying { audioManager.play() }
         if isBrainSound(sound.name) { showToast("🎧 双耳节拍需戴耳机才有效果") }
         persistTracks()
         return true

@@ -107,7 +107,7 @@ final class GrainScheduler {
                 for i in 0..<Self.maxVoices where voices[i].isActive {
                     let (l, r) = voices[i].nextSample(
                         pcm: pcm,
-                        pcmLen: pcmFrameCount,
+                        pcmLen: pcmLen,
                         window: windowPtr,
                         windowSize: Self.windowSize
                     )
