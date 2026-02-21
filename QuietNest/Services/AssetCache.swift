@@ -113,58 +113,51 @@ final class AssetCache {
 
         do {
             let audioFile = try AVAudioFile(forReading: url)
-            // 转换为 48kHz mono Float32
+            // 目标格式：48kHz mono Float32（GrainScheduler 所需）
             let targetFormat = AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1)!
             let frameCount = AVAudioFrameCount(audioFile.length)
-            guard let buffer = AVAudioPCMBuffer(pcmFormat: targetFormat, frameCapacity: frameCount) else {
+
+            // 关键：始终用 audioFile.processingFormat 创建读取缓冲区。
+            // 若改用独立构造的 targetFormat，可能因 channelLayout tag 不同导致
+            // read(into:) 抛出 "format mismatch" 错误，静默返回 nil。
+            guard let srcBuf = AVAudioPCMBuffer(pcmFormat: audioFile.processingFormat,
+                                                frameCapacity: frameCount) else { return nil }
+            try audioFile.read(into: srcBuf)
+
+            guard srcBuf.frameLength > 0 else {
+                print("[AssetCache] Empty audio for \(soundId)")
                 return nil
             }
 
-            // 如果源格式和目标格式匹配，直接读取
-            if audioFile.processingFormat.sampleRate == 48_000 &&
-               audioFile.processingFormat.channelCount == 1 {
-                try audioFile.read(into: buffer)
-                return buffer
+            // 若 processingFormat 已是目标格式，直接返回（无需转换）
+            if audioFile.processingFormat == targetFormat {
+                return srcBuf
             }
 
-            // 否则用 converter 转换
-            guard let sourceBuffer = AVAudioPCMBuffer(
-                pcmFormat: audioFile.processingFormat,
-                frameCapacity: frameCount
-            ) else { return nil }
-            try audioFile.read(into: sourceBuffer)
-
+            // 否则通过 AVAudioConverter 转换到 48kHz mono Float32
             guard let converter = AVAudioConverter(from: audioFile.processingFormat, to: targetFormat) else {
+                print("[AssetCache] No converter for \(soundId)")
                 return nil
             }
-
             let outputFrameCount = AVAudioFrameCount(
-                Double(frameCount) * 48_000 / audioFile.processingFormat.sampleRate
+                Double(srcBuf.frameLength) * 48_000 / audioFile.processingFormat.sampleRate
             )
-            guard let outputBuffer = AVAudioPCMBuffer(
-                pcmFormat: targetFormat,
-                frameCapacity: outputFrameCount
-            ) else { return nil }
-
+            guard let outBuf = AVAudioPCMBuffer(pcmFormat: targetFormat,
+                                                frameCapacity: max(outputFrameCount, 1)) else { return nil }
             var isDone = false
             let inputBlock: AVAudioConverterInputBlock = { _, outStatus in
-                if isDone {
-                    outStatus.pointee = .noDataNow
-                    return nil
-                }
+                if isDone { outStatus.pointee = .noDataNow; return nil }
                 isDone = true
                 outStatus.pointee = .haveData
-                return sourceBuffer
+                return srcBuf
             }
-
             var error: NSError?
-            converter.convert(to: outputBuffer, error: &error, withInputFrom: inputBlock)
+            converter.convert(to: outBuf, error: &error, withInputFrom: inputBlock)
             if let error {
                 print("[AssetCache] Convert error for \(soundId): \(error)")
                 return nil
             }
-
-            return outputBuffer
+            return outBuf
         } catch {
             print("[AssetCache] Load error for \(soundId): \(error)")
             return nil
