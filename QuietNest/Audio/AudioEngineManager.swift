@@ -75,7 +75,7 @@ final class AudioEngineManager {
 
         // 安装 RMS 检测 tap，必须在 engine.start() 之前安装
         // 注意：不要 tap mainMixerNode，会导致真机无声输出；改为 tap eq（非输出节点）
-        eq.installTap(onBus: 0, bufferSize: 2048, format: format) { [weak self] buffer, _ in
+        eq.installTap(onBus: 0, bufferSize: 2048, format: nil) { [weak self] buffer, _ in
             guard let self, let channelData = buffer.floatChannelData else { return }
             let frameCount = Int(buffer.frameLength)
             guard frameCount > 0 else { return }
@@ -169,7 +169,12 @@ final class AudioEngineManager {
     func play() {
         guard !isPlaying else { return }
         do {
-            try configureAudioSession()   // 中断结束后重新激活 session
+            // 仅重新激活 session，不重新 setCategory（避免触发图重配置）
+            try AVAudioSession.sharedInstance().setActive(true)
+            // 淡出后 outputVolume 可能为 0，恢复默认音量
+            if engine.mainMixerNode.outputVolume < 0.05 {
+                engine.mainMixerNode.outputVolume = 0.85
+            }
             try engine.start()
             isPlaying = true
         } catch {
