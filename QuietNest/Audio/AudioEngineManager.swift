@@ -16,6 +16,7 @@ final class AudioEngineManager {
     // MARK: - 音频图节点
 
     private let engine = AVAudioEngine()
+    private let slotMixer = AVAudioMixerNode()   // 汇集所有槽位输出，再送入 EQ
     private let eq = AVAudioUnitEQ(numberOfBands: 3)
     private let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 2)!
 
@@ -50,13 +51,20 @@ final class AudioEngineManager {
     func setup() throws {
         try configureAudioSession()
 
+        // 信号链：slotMixer → eq → mainMixerNode → output
+        // AVAudioUnitEQ 只有 1 个输入 bus，若直接把 8 个 sourceNode 连到 eq，
+        // 每次 connect 会覆盖前一条连接，导致只有最后一个槽位有输出（永远是空槽）。
+        // 加入 AVAudioMixerNode 作为汇集器，每个槽位连到 mixer 的不同 input bus，
+        // mixer 再统一输出到 eq，避免此问题。
+        engine.attach(slotMixer)
         engine.attach(eq)
+        engine.connect(slotMixer, to: eq, format: format)
         engine.connect(eq, to: engine.mainMixerNode, format: format)
         engine.mainMixerNode.outputVolume = 0.85
         configureEQ()
 
-        // 预分配槽位 + 节点，并全部接入音频图
-        for _ in 0..<Self.maxSlots {
+        // 预分配槽位 + 节点，每个节点连到 slotMixer 的独立 input bus
+        for slotIdx in 0..<Self.maxSlots {
             let driver = TrackSlotDriver()
             slotDrivers.append(driver)
 
@@ -70,7 +78,8 @@ final class AudioEngineManager {
             }
             nodes.append(node)
             engine.attach(node)
-            engine.connect(node, to: eq, format: format)
+            // 每个槽位连到 slotMixer 的不同 input bus（bus 0~7）
+            engine.connect(node, to: slotMixer, fromBus: 0, toBus: AVAudioNodeBus(slotIdx), format: format)
         }
 
         // 安装 RMS 检测 tap，必须在 engine.start() 之前安装
