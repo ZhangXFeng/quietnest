@@ -1,5 +1,6 @@
 import SwiftUI
 import Combine
+import MediaPlayer
 
 /// SwiftUI 桥接层 — 连接 UI 与音频引擎
 /// ObservableObject，供 View 绑定
@@ -8,11 +9,16 @@ final class AudioManager: ObservableObject {
 
     @Published private(set) var isPlaying = false
     @Published private(set) var isEngineReady = false
+    @Published private(set) var rmsLevel: Double = 0
 
     private let engine = AudioEngineManager()
+    private var rmsPollingTimer: Timer?
 
     /// 已添加到引擎的轨道 soundId 集合
     private var activeTrackIds: Set<String> = []
+
+    /// 当前音景名称（用于 Now Playing 显示）
+    @Published private(set) var currentSceneName: String = "QuietNest"
 
     // MARK: - 声音 ID 映射（UI 名称 -> 引擎 soundId）
 
@@ -134,9 +140,11 @@ final class AudioManager: ObservableObject {
     func setup() {
         engine.onPausedBySystem = { [weak self] in
             self?.isPlaying = false
+            self?.updateNowPlaying()
         }
         engine.onFadeCompleted = { [weak self] in
             self?.isPlaying = false
+            self?.updateNowPlaying()
         }
         do {
             try engine.setup()
@@ -145,6 +153,15 @@ final class AudioManager: ObservableObject {
         } catch {
             print("[AudioManager] setup failed: \(error)")
         }
+        setupRemoteCommands()
+        updateNowPlaying()
+
+        // 轮询引擎 RMS，驱动波形可视化（30fps）
+        rmsPollingTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 30.0, repeats: true) { [weak self] _ in
+            guard let self else { return }
+            let raw = Double(self.engine.rmsLevel)
+            self.rmsLevel = min(1.0, raw * 5.0)  // 放大并截幅到 0~1
+        }
     }
 
     // MARK: - 播放控制
@@ -152,15 +169,92 @@ final class AudioManager: ObservableObject {
     func play() {
         engine.play()
         isPlaying = true
+        updateNowPlaying()
     }
 
     func pause() {
         engine.pause()
         isPlaying = false
+        updateNowPlaying()
     }
 
     func togglePlayback() {
         if isPlaying { pause() } else { play() }
+    }
+
+    // MARK: - Now Playing
+
+    func setSceneName(_ name: String) {
+        currentSceneName = name
+        updateNowPlaying()
+    }
+
+    private func updateNowPlaying() {
+        var info: [String: Any] = [
+            MPMediaItemPropertyTitle: currentSceneName,
+            MPMediaItemPropertyArtist: "QuietNest",
+            MPNowPlayingInfoPropertyIsLiveStream: true,
+            MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? 1.0 : 0.0,
+        ]
+        // 用 SF Symbol 渲染一个简单封面图
+        if let img = makeNowPlayingArtwork() {
+            info[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(
+                boundsSize: img.size) { _ in img }
+        }
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = info
+    }
+
+    private func setupRemoteCommands() {
+        let center = MPRemoteCommandCenter.shared()
+
+        center.playCommand.addTarget { [weak self] _ in
+            guard let self, !self.isPlaying else { return .noActionableNowPlayingItem }
+            self.play()
+            return .success
+        }
+        center.pauseCommand.addTarget { [weak self] _ in
+            guard let self, self.isPlaying else { return .noActionableNowPlayingItem }
+            self.pause()
+            return .success
+        }
+        center.togglePlayPauseCommand.addTarget { [weak self] _ in
+            self?.togglePlayback()
+            return .success
+        }
+        // 白噪音 app 不需要上/下一首，禁用避免误触
+        center.nextTrackCommand.isEnabled = false
+        center.previousTrackCommand.isEnabled = false
+    }
+
+    /// 生成一张渐变封面图（避免 Now Playing 显示空白）
+    private func makeNowPlayingArtwork() -> UIImage? {
+        let size = CGSize(width: 600, height: 600)
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { ctx in
+            let colors = [
+                UIColor(red: 0.04, green: 0.07, blue: 0.18, alpha: 1),
+                UIColor(red: 0.10, green: 0.14, blue: 0.28, alpha: 1),
+            ]
+            let gradient = CGGradient(
+                colorsSpace: CGColorSpaceCreateDeviceRGB(),
+                colors: colors.map(\.cgColor) as CFArray,
+                locations: [0, 1]
+            )!
+            ctx.cgContext.drawLinearGradient(
+                gradient,
+                start: .zero,
+                end: CGPoint(x: 0, y: size.height),
+                options: []
+            )
+            // 绘制月亮 emoji 作为封面标志
+            let attrs: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 220)]
+            let str = NSAttributedString(string: "🌙", attributes: attrs)
+            let strSize = str.size()
+            str.draw(at: CGPoint(
+                x: (size.width - strSize.width) / 2,
+                y: (size.height - strSize.height) / 2
+            ))
+        }
     }
 
     // MARK: - 轨道管理
@@ -212,11 +306,51 @@ final class AudioManager: ObservableObject {
         activeTrackIds.removeAll()
     }
 
-    /// 应用预设（替换所有轨道）
+    /// 应用预设（替换所有轨道，无渐变）
     func applyPreset(tracks: [(name: String, volume: Double)], seed: UInt64 = 0) {
         removeAllTracks()
         for track in tracks {
             addTrack(name: track.name, gain: Float(track.volume), seed: seed)
+        }
+    }
+
+    /// 带 crossfade 的预设切换（淡出 → 换轨 → 淡入，各约 300ms）
+    private var crossfadeTask: Task<Void, Never>?
+
+    func crossfadePreset(tracks: [(name: String, volume: Double)], seed: UInt64 = 0) {
+        crossfadeTask?.cancel()
+        let capturedTracks = tracks
+        let capturedSeed = seed
+        crossfadeTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            let targetVol: Float = 0.85
+            let steps = 15
+            let stepNs: UInt64 = 20_000_000 // 20ms × 15 = 300ms per half
+
+            // 淡出
+            for i in 1...steps {
+                guard !Task.isCancelled else { self.engine.masterVolume = targetVol; return }
+                try? await Task.sleep(nanoseconds: stepNs)
+                let t = Float(i) / Float(steps)
+                self.engine.masterVolume = targetVol * (1 - t)
+            }
+
+            guard !Task.isCancelled else { self.engine.masterVolume = targetVol; return }
+
+            // 换轨
+            self.removeAllTracks()
+            for track in capturedTracks {
+                self.addTrack(name: track.name, gain: Float(track.volume), seed: capturedSeed)
+            }
+
+            // 淡入
+            for i in 1...steps {
+                guard !Task.isCancelled else { self.engine.masterVolume = targetVol; return }
+                try? await Task.sleep(nanoseconds: stepNs)
+                let t = Float(i) / Float(steps)
+                self.engine.masterVolume = targetVol * t
+            }
+            self.engine.masterVolume = targetVol
         }
     }
 

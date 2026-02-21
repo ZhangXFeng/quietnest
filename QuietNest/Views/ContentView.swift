@@ -59,10 +59,12 @@ struct ContentView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @AppStorage("favoritePresetNamesData") private var favoritePresetNamesData = "[]"
     @AppStorage("customPresetsData") private var customPresetsData = "[]"
+    @AppStorage("lastTracksData") private var lastTracksData = ""
+    @AppStorage("lastPresetName") private var lastPresetName = "雨夜书房"
     @State private var selectedCategory: SoundCategory = .nature
     @State private var showSettings = false
     @State private var activePanel: BottomPanel?
-    @State private var selectedPreset = "雨夜书房"
+    @State private var selectedPreset = ""
     @State private var selectedTimer = 45
     @State private var timerActive = false
     @State private var remainingSeconds = 0
@@ -77,11 +79,7 @@ struct ContentView: View {
     @State private var newPresetName = ""
     @State private var showAddTrackPage = false
     @State private var addTrackSearchText = ""
-    @State private var tracks: [Track] = [
-        Track(emoji: "🌧️", name: "雨声", volume: 0.72),
-        Track(emoji: "⛈️", name: "远处雷声", volume: 0.30),
-        Track(emoji: "🔥", name: "篝火", volume: 0.50)
-    ]
+    @State private var tracks: [Track] = []
 
     private let soundsData: [SoundCategory: [SoundItem]] = [
         .nature: [
@@ -222,7 +220,10 @@ struct ContentView: View {
                             onSelect: { preset in
                                 selectedPreset = preset.name
                                 tracks = preset.tracks
-                                syncTracksToEngine()
+                                let trackData = tracks.map { (name: $0.name, volume: $0.volume) }
+                                audioManager.crossfadePreset(tracks: trackData)
+                                audioManager.setSceneName(preset.name)
+                                persistTracks()
                                 withAnimation(.easeOut(duration: 0.2)) { activePanel = nil }
                             }
                         )
@@ -261,7 +262,7 @@ struct ContentView: View {
                 existingTrackNames: Set(tracks.map(\.name)),
                 trackCount: tracks.count,
                 onPreview: { sound in
-                    audioManager.previewSound(name: sound.name)
+                    previewSoundItem(sound)
                 },
                 onAdd: { sound in
                     _ = addTrackFromLibrary(sound)
@@ -456,18 +457,38 @@ struct ContentView: View {
                 )
                 .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.white.opacity(0.05), lineWidth: 1))
 
-            WaveVisualView(isPlaying: audioManager.isPlaying)
+            WaveVisualView(isPlaying: audioManager.isPlaying, amplitude: audioManager.rmsLevel)
                 .clipShape(RoundedRectangle(cornerRadius: 18))
 
+            // 渐弱遮罩：最后 5 分钟，随时间推移逐渐变暗
+            let isFadingOut = timerActive && remainingSeconds <= 300 && remainingSeconds > 0
+            if isFadingOut {
+                let fadeProgress = 1.0 - Double(remainingSeconds) / 300.0
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(Color.black.opacity(fadeProgress * 0.5))
+                    .allowsHitTesting(false)
+                    .animation(.linear(duration: 1), value: fadeProgress)
+            }
+
             if timerActive {
-                Text(formatSeconds(remainingSeconds))
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(Color(red: 0.91, green: 0.66, blue: 0.22))
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(.black.opacity(0.45))
-                    .clipShape(Capsule())
-                    .padding(12)
+                HStack(spacing: 6) {
+                    if isFadingOut {
+                        Image(systemName: "moon.fill")
+                            .font(.caption2)
+                            .foregroundStyle(Color(red: 0.91, green: 0.66, blue: 0.22).opacity(0.9))
+                        Text("渐弱中")
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(Color(red: 0.91, green: 0.66, blue: 0.22).opacity(0.9))
+                    }
+                    Text(formatSeconds(remainingSeconds))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Color(red: 0.91, green: 0.66, blue: 0.22))
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(.black.opacity(0.45))
+                .clipShape(Capsule())
+                .padding(12)
             }
 
             VStack(alignment: .leading) {
@@ -527,7 +548,7 @@ struct ContentView: View {
                             .onEnded { toggleSound(sound) }
                             .exclusively(
                                 before: TapGesture(count: 1)
-                                    .onEnded { audioManager.previewSound(name: sound.name) }
+                                    .onEnded { previewSoundItem(sound) }
                             )
                     )
                 }
@@ -552,6 +573,7 @@ struct ContentView: View {
                         }
                         .onChange(of: track.volume) { newValue in
                             audioManager.updateVolume(name: track.name, volume: newValue)
+                            persistTracks()
                         }
                     }
                 }
@@ -683,10 +705,22 @@ struct ContentView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
+    private func isBrainSound(_ name: String) -> Bool {
+        soundsData[.brain]?.contains(where: { $0.name == name }) ?? false
+    }
+
+    private func previewSoundItem(_ sound: SoundItem) {
+        audioManager.previewSound(name: sound.name)
+        if isBrainSound(sound.name) {
+            showToast("🎧 双耳节拍需戴耳机才有效果")
+        }
+    }
+
     private func toggleSound(_ sound: SoundItem) {
         if let existing = tracks.firstIndex(where: { $0.name == sound.name }) {
             audioManager.removeTrack(name: sound.name)
             tracks.remove(at: existing)
+            persistTracks()
             return
         }
         guard tracks.count < 8 else {
@@ -695,11 +729,14 @@ struct ContentView: View {
         }
         tracks.append(Track(emoji: sound.emoji, name: sound.name, volume: 0.5))
         audioManager.addTrack(name: sound.name, gain: 0.5)
+        if isBrainSound(sound.name) { showToast("🎧 双耳节拍需戴耳机才有效果") }
+        persistTracks()
     }
 
     private func removeTrack(_ track: Track) {
         audioManager.removeTrack(name: track.name)
         tracks.removeAll { $0.id == track.id }
+        persistTracks()
     }
 
     @discardableResult
@@ -714,6 +751,8 @@ struct ContentView: View {
         }
         tracks.append(Track(emoji: sound.emoji, name: sound.name, volume: 0.5))
         audioManager.addTrack(name: sound.name, gain: 0.5)
+        if isBrainSound(sound.name) { showToast("🎧 双耳节拍需戴耳机才有效果") }
+        persistTracks()
         return true
     }
 
@@ -736,10 +775,12 @@ struct ContentView: View {
             Track(emoji: $0.emoji, name: $0.name, volume: Double(rng.nextFloat(in: 0.2...0.8)))
         }
         selectedPreset = "随机音景"
+        audioManager.setSceneName("随机音景")
 
-        // 同步到引擎（用相同 seed 保证 grain 参数也可复现）
+        // 同步到引擎（crossfade，用相同 seed 保证 grain 参数也可复现）
         let trackData = tracks.map { (name: $0.name, volume: $0.volume) }
-        audioManager.applyPreset(tracks: trackData, seed: seed)
+        audioManager.crossfadePreset(tracks: trackData, seed: seed)
+        persistTracks()
     }
 
     /// 将当前 UI 轨道列表同步到音频引擎
@@ -757,6 +798,31 @@ struct ContentView: View {
            let list = try? JSONDecoder().decode([Preset].self, from: data) {
             customPresets = list
         }
+        // 恢复上次轨道；若没有记录则使用默认预设
+        if !lastTracksData.isEmpty,
+           let data = lastTracksData.data(using: .utf8),
+           let saved = try? JSONDecoder().decode([Track].self, from: data),
+           !saved.isEmpty {
+            tracks = saved
+            selectedPreset = lastPresetName
+        } else {
+            // 首次启动：使用默认预设"雨夜书房"
+            let defaultTracks = defaultPresets.first(where: { $0.name == "雨夜书房" })?.tracks ?? [
+                Track(emoji: "🌧️", name: "雨声", volume: 0.72),
+                Track(emoji: "🔥", name: "篝火", volume: 0.50),
+                Track(emoji: "🕰️", name: "钟摆", volume: 0.26),
+            ]
+            tracks = defaultTracks
+            selectedPreset = "雨夜书房"
+        }
+    }
+
+    private func persistTracks() {
+        if let data = try? JSONEncoder().encode(tracks),
+           let str = String(data: data, encoding: .utf8) {
+            lastTracksData = str
+        }
+        lastPresetName = selectedPreset
     }
 
     private func persistFavoriteNames() {
@@ -972,24 +1038,27 @@ private struct AddTrackPageView: View {
 
 private struct WaveVisualView: View {
     let isPlaying: Bool
+    var amplitude: Double = 0.3  // 0...1，由 AudioManager.rmsLevel 驱动
 
     var body: some View {
         TimelineView(.animation(minimumInterval: 1 / 24, paused: !isPlaying)) { context in
             Canvas { ctx, size in
                 let t = context.date.timeIntervalSinceReferenceDate
+                // 最小 0.2 振幅保证静音时可见，最大 1.5 避免超出区域
+                let scale = isPlaying ? max(0.2, min(1.5, amplitude * 1.4 + 0.2)) : 0.08
                 var path = Path()
                 path.move(to: .init(x: 0, y: size.height))
                 for x in stride(from: 0, through: size.width, by: 2) {
                     let y = size.height * 0.55
-                    + sin(x * 0.015 + t * 2.0) * 12
-                    + sin(x * 0.009 + t * 1.4) * 8
+                    + sin(x * 0.015 + t * 2.0) * 14 * scale
+                    + sin(x * 0.009 + t * 1.4) * 9 * scale
                     path.addLine(to: .init(x: x, y: y))
                 }
                 path.addLine(to: .init(x: size.width, y: size.height))
                 path.closeSubpath()
                 ctx.fill(path, with: .linearGradient(
                     .init(colors: [
-                        Color(red: 0.91, green: 0.66, blue: 0.22).opacity(0.25),
+                        Color(red: 0.91, green: 0.66, blue: 0.22).opacity(0.28),
                         Color(red: 0.91, green: 0.66, blue: 0.22).opacity(0.02)
                     ]),
                     startPoint: .init(x: 0, y: size.height * 0.35),

@@ -76,6 +76,18 @@ final class AudioEngineManager {
         try engine.start()
         isPlaying = true
 
+        // 安装 RMS 检测 tap（在 mainMixerNode 上采样，计算实时电平）
+        engine.mainMixerNode.installTap(onBus: 0, bufferSize: 2048, format: nil) { [weak self] buffer, _ in
+            guard let self, let channelData = buffer.floatChannelData else { return }
+            let frameCount = Int(buffer.frameLength)
+            guard frameCount > 0 else { return }
+            var sum: Float = 0
+            let data = channelData[0]
+            for i in 0..<frameCount { let s = data[i]; sum += s * s }
+            let rms = sqrtf(sum / Float(frameCount))
+            self.rmsLevel = self.rmsLevel * 0.8 + rms * 0.2   // 指数平滑
+        }
+
         NotificationCenter.default.addObserver(
             self, selector: #selector(handleInterruption),
             name: AVAudioSession.interruptionNotification, object: nil
@@ -136,6 +148,15 @@ final class AudioEngineManager {
         guard let slotIdx = slotMap[soundId] else { return }
         slotDrivers[slotIdx].updateGain(gain)
     }
+
+    /// 主输出音量（用于 crossfade 动画）
+    var masterVolume: Float {
+        get { engine.mainMixerNode.outputVolume }
+        set { engine.mainMixerNode.outputVolume = newValue }
+    }
+
+    /// 实时 RMS 电平（音频线程写，主线程读，无锁）
+    nonisolated(unsafe) private(set) var rmsLevel: Float = 0
 
     // MARK: - 播放控制
 
