@@ -536,21 +536,16 @@ struct ContentView: View {
                             .background(active ? Color(red: 0.91, green: 0.66, blue: 0.22).opacity(0.18) : Color.white.opacity(0.05))
                             .clipShape(Circle())
                             .overlay(Circle().stroke(active ? Color(red: 0.91, green: 0.66, blue: 0.22) : Color.white.opacity(0.08), lineWidth: 1))
+                            .scaleEffect(active ? 1.06 : 1.0)
+                            .animation(.spring(response: 0.25, dampingFraction: 0.6), value: active)
                         Text(sound.name)
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(active ? Color(red: 0.91, green: 0.66, blue: 0.22) : .secondary)
                             .lineLimit(1)
                     }
                     .frame(width: 64)
                     .contentShape(Rectangle())
-                    .gesture(
-                        TapGesture(count: 2)
-                            .onEnded { toggleSound(sound) }
-                            .exclusively(
-                                before: TapGesture(count: 1)
-                                    .onEnded { previewSoundItem(sound) }
-                            )
-                    )
+                    .onTapGesture { withAnimation { toggleSound(sound) } }
                 }
             }
             .padding(.vertical, 4)
