@@ -73,11 +73,9 @@ final class AudioEngineManager {
             engine.connect(node, to: eq, format: format)
         }
 
-        try engine.start()
-        isPlaying = true
-
-        // 安装 RMS 检测 tap（在 mainMixerNode 上采样，计算实时电平）
-        engine.mainMixerNode.installTap(onBus: 0, bufferSize: 2048, format: nil) { [weak self] buffer, _ in
+        // 安装 RMS 检测 tap，必须在 engine.start() 之前安装
+        // 注意：不要 tap mainMixerNode，会导致真机无声输出；改为 tap eq（非输出节点）
+        eq.installTap(onBus: 0, bufferSize: 2048, format: format) { [weak self] buffer, _ in
             guard let self, let channelData = buffer.floatChannelData else { return }
             let frameCount = Int(buffer.frameLength)
             guard frameCount > 0 else { return }
@@ -87,6 +85,9 @@ final class AudioEngineManager {
             let rms = sqrtf(sum / Float(frameCount))
             self.rmsLevel = self.rmsLevel * 0.8 + rms * 0.2   // 指数平滑
         }
+
+        try engine.start()
+        isPlaying = true
 
         NotificationCenter.default.addObserver(
             self, selector: #selector(handleInterruption),
@@ -163,6 +164,7 @@ final class AudioEngineManager {
     func play() {
         guard !isPlaying else { return }
         do {
+            try configureAudioSession()   // 中断结束后重新激活 session
             try engine.start()
             isPlaying = true
         } catch {
