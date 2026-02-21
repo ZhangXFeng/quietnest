@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 private enum SoundCategory: String, CaseIterable, Identifiable {
     case nature = "🌿 自然"
@@ -15,14 +16,14 @@ private struct SoundItem: Identifiable, Hashable {
     let name: String
 }
 
-private struct Track: Identifiable, Codable, Hashable {
+struct Track: Identifiable, Codable, Hashable {
     var id = UUID()
     let emoji: String
     let name: String
     var volume: Double
 }
 
-private struct Preset: Identifiable, Codable, Hashable {
+struct Preset: Identifiable, Codable, Hashable {
     var id = UUID()
     let name: String
     let scene: String
@@ -33,7 +34,7 @@ private struct Preset: Identifiable, Codable, Hashable {
     var isFavorite: Bool = false
 }
 
-private enum PresetGroup: String, CaseIterable, Codable {
+enum PresetGroup: String, CaseIterable, Codable {
     case officialSleep
     case officialFocus
     case officialRelax
@@ -54,6 +55,43 @@ private enum BottomPanel {
     case timer
 }
 
+extension Notification.Name {
+    static let quietNestDidImportBackup = Notification.Name("quietNestDidImportBackup")
+}
+
+struct AppBackupPayload: Codable {
+    let version: Int
+    let exportedAt: Date
+    let favoritePresetNames: [String]
+    let customPresets: [Preset]
+    let lastTracks: [Track]
+    let lastPresetName: String
+    let mixWithOthersEnabled: Bool
+    let analyticsEnabled: Bool
+}
+
+private struct AppBackupDocument: FileDocument {
+    static var readableContentTypes: [UTType] { [.json] }
+
+    var payload: AppBackupPayload
+
+    init(payload: AppBackupPayload) {
+        self.payload = payload
+    }
+
+    init(configuration: ReadConfiguration) throws {
+        guard let data = configuration.file.regularFileContents else {
+            throw CocoaError(.fileReadCorruptFile)
+        }
+        payload = try AppBackupCodec.decodePayload(from: data)
+    }
+
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        let data = try AppBackupCodec.encodePayload(payload, prettyPrinted: true)
+        return .init(regularFileWithContents: data)
+    }
+}
+
 struct ContentView: View {
     @StateObject private var audioManager = AudioManager()
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
@@ -61,6 +99,8 @@ struct ContentView: View {
     @AppStorage("customPresetsData") private var customPresetsData = "[]"
     @AppStorage("lastTracksData") private var lastTracksData = ""
     @AppStorage("lastPresetName") private var lastPresetName = "雨夜书房"
+    @AppStorage("mixWithOthersEnabled") private var mixWithOthersEnabled = true
+    @AppStorage("analyticsEnabled") private var analyticsEnabled = true
     @State private var selectedCategory: SoundCategory = .nature
     @State private var showSettings = false
     @State private var activePanel: BottomPanel?
@@ -68,6 +108,7 @@ struct ContentView: View {
     @State private var selectedTimer = 45
     @State private var timerActive = false
     @State private var remainingSeconds = 0
+    @State private var timerFadeStarted = false
     @State private var showOnboarding = false
     @State private var onboardingStep = 1
     @State private var selectedScene = "😴 助眠 · 安心入睡"
@@ -218,10 +259,20 @@ struct ContentView: View {
                                 toggleFavorite(preset)
                             },
                             onSelect: { preset in
+                                let currentTrackData = tracks.map { (name: $0.name, volume: $0.volume) }
+                                let targetTrackData = preset.tracks.map { (name: $0.name, volume: $0.volume) }
+                                let sceneChanged = selectedPreset != preset.name
+                                let tracksChanged = PresetTransitionPlanner.hasMeaningfulDifference(
+                                    current: currentTrackData,
+                                    target: targetTrackData
+                                )
+
                                 selectedPreset = preset.name
                                 tracks = preset.tracks
-                                let trackData = tracks.map { (name: $0.name, volume: $0.volume) }
-                                audioManager.crossfadePreset(tracks: trackData)
+                                if sceneChanged || tracksChanged {
+                                    let trackData = tracks.map { (name: $0.name, volume: $0.volume) }
+                                    audioManager.crossfadePreset(tracks: trackData, sceneName: preset.name)
+                                }
                                 audioManager.setSceneName(preset.name)
                                 persistTracks()
                                 withAnimation(.easeOut(duration: 0.2)) { activePanel = nil }
@@ -284,25 +335,56 @@ struct ContentView: View {
             if !hasCompletedOnboarding {
                 showOnboarding = true
             }
+            audioManager.setMixWithOthers(mixWithOthersEnabled)
             // 初始化音频引擎并同步默认轨道
             audioManager.setup()
-            syncTracksToEngine()
+            let forceSyncDecision = AppImportSyncPlanner.makeDecision(
+                currentScene: "",
+                currentTracks: [],
+                restoredScene: selectedPreset,
+                restoredTracks: tracks,
+                forceApply: true
+            )
+            if forceSyncDecision.shouldApplyPreset { syncTracksToEngine() }
+            if forceSyncDecision.shouldSetScene { audioManager.setSceneName(selectedPreset) }
+        }
+        .onChange(of: mixWithOthersEnabled) { enabled in
+            audioManager.setMixWithOthers(enabled)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .quietNestDidImportBackup)) { _ in
+            let previousScene = selectedPreset
+            let previousTracks = tracks
+            loadPersistedData()
+            let decision = AppImportSyncPlanner.makeDecision(
+                currentScene: previousScene,
+                currentTracks: previousTracks,
+                restoredScene: selectedPreset,
+                restoredTracks: tracks
+            )
+            if decision.shouldApplyPreset { syncTracksToEngine() }
+            if decision.shouldSetScene { audioManager.setSceneName(selectedPreset) }
+            showToast("导入完成")
         }
         .onReceive(ticker) { _ in
-            guard timerActive else { return }
-            guard remainingSeconds > 0 else {
-                timerActive = false
-                return
-            }
-            remainingSeconds -= 1
-            if remainingSeconds == 300 {
-                // 最后 5 分钟开始渐弱淡出
-                audioManager.startFadeOut(durationSec: 300)
-            }
-            if remainingSeconds <= 0 {
-                timerActive = false
-                audioManager.pause()
-                showToast("定时结束")
+            let (next, events) = TimerCountdownReducer.tick(
+                TimerCountdownState(
+                    timerActive: timerActive,
+                    remainingSeconds: remainingSeconds,
+                    fadeStarted: timerFadeStarted
+                )
+            )
+            timerActive = next.timerActive
+            remainingSeconds = next.remainingSeconds
+            timerFadeStarted = next.fadeStarted
+
+            for event in events {
+                switch event {
+                case .startFadeOut(let durationSec):
+                    audioManager.startFadeOut(durationSec: Float(durationSec))
+                case .finishAndPause:
+                    audioManager.pause()
+                    showToast("定时结束")
+                }
             }
         }
     }
@@ -718,8 +800,8 @@ struct ContentView: View {
             persistTracks()
             return
         }
-        guard tracks.count < 8 else {
-            showToast("最多 8 个轨道")
+        guard tracks.count < TrackPolicy.maxTracks else {
+            showToast("最多 \(TrackPolicy.maxTracks) 个轨道")
             return
         }
         tracks.append(Track(emoji: sound.emoji, name: sound.name, volume: 0.5))
@@ -738,8 +820,8 @@ struct ContentView: View {
 
     @discardableResult
     private func addTrackFromLibrary(_ sound: SoundItem) -> Bool {
-        if tracks.count >= 8 {
-            showToast("最多 8 个轨道")
+        if tracks.count >= TrackPolicy.maxTracks {
+            showToast("最多 \(TrackPolicy.maxTracks) 个轨道")
             return false
         }
         if tracks.contains(where: { $0.name == sound.name }) {
@@ -777,42 +859,41 @@ struct ContentView: View {
 
         // 同步到引擎（crossfade，用相同 seed 保证 grain 参数也可复现）
         let trackData = tracks.map { (name: $0.name, volume: $0.volume) }
-        audioManager.crossfadePreset(tracks: trackData, seed: seed)
+        audioManager.crossfadePreset(tracks: trackData, seed: seed, sceneName: "随机音景")
         persistTracks()
     }
 
     /// 将当前 UI 轨道列表同步到音频引擎
     private func syncTracksToEngine() {
         let trackData = tracks.map { (name: $0.name, volume: $0.volume) }
-        audioManager.applyPreset(tracks: trackData)
+        audioManager.applyPreset(tracks: trackData, sceneName: selectedPreset)
     }
 
     private func loadPersistedData() {
         if let data = favoritePresetNamesData.data(using: .utf8),
            let arr = try? JSONDecoder().decode([String].self, from: data) {
-            favoritePresetNames = Set(arr)
+            let sanitized = arr.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+            favoritePresetNames = Set(sanitized)
         }
         if let data = customPresetsData.data(using: .utf8),
            let list = try? JSONDecoder().decode([Preset].self, from: data) {
-            customPresets = list
+            customPresets = AppBackupCodec.sanitizePresets(list)
         }
-        // 恢复上次轨道；若没有记录则使用默认预设
-        if !lastTracksData.isEmpty,
-           let data = lastTracksData.data(using: .utf8),
-           let saved = try? JSONDecoder().decode([Track].self, from: data),
-           !saved.isEmpty {
-            tracks = saved
-            selectedPreset = lastPresetName
-        } else {
-            // 首次启动：使用默认预设"雨夜书房"
-            let defaultTracks = defaultPresets.first(where: { $0.name == "雨夜书房" })?.tracks ?? [
-                Track(emoji: "🌧️", name: "雨声", volume: 0.72),
-                Track(emoji: "🔥", name: "篝火", volume: 0.50),
-                Track(emoji: "🕰️", name: "钟摆", volume: 0.26),
-            ]
-            tracks = defaultTracks
-            selectedPreset = "雨夜书房"
-        }
+        let fallbackTracks = defaultPresets.first(where: { $0.name == "雨夜书房" })?.tracks ?? [
+            Track(emoji: "🌧️", name: "雨声", volume: 0.72),
+            Track(emoji: "🔥", name: "篝火", volume: 0.50),
+            Track(emoji: "🕰️", name: "钟摆", volume: 0.26),
+        ]
+        let restored = AppStateRestorePlanner.restoreScene(
+            lastTracksData: lastTracksData,
+            lastPresetName: lastPresetName,
+            availablePresets: defaultPresets + customPresets,
+            defaultPresetName: "雨夜书房",
+            fallbackTracks: fallbackTracks
+        )
+        tracks = restored.tracks
+        selectedPreset = restored.selectedPreset
     }
 
     private func persistTracks() {
@@ -884,11 +965,17 @@ struct ContentView: View {
     private func startTimer() {
         timerActive = true
         remainingSeconds = selectedTimer * 60
+        timerFadeStarted = false
+        if remainingSeconds <= TimerCountdownReducer.fadeDurationSec {
+            timerFadeStarted = true
+            audioManager.startFadeOut(durationSec: Float(TimerCountdownReducer.fadeDurationSec))
+        }
     }
 
     private func clearTimer() {
         timerActive = false
         remainingSeconds = 0
+        timerFadeStarted = false
         audioManager.cancelFadeOut()
     }
 
@@ -1307,23 +1394,45 @@ private struct TimerPanelView: View {
 
 private struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var mixWithOthers = true
-    @State private var analytics = true
+    @AppStorage("favoritePresetNamesData") private var favoritePresetNamesData = "[]"
+    @AppStorage("customPresetsData") private var customPresetsData = "[]"
+    @AppStorage("lastTracksData") private var lastTracksData = ""
+    @AppStorage("lastPresetName") private var lastPresetName = "雨夜书房"
+    @AppStorage("mixWithOthersEnabled") private var mixWithOthersEnabled = true
+    @AppStorage("analyticsEnabled") private var analyticsEnabled = true
+
+    @State private var exportDocument: AppBackupDocument?
+    @State private var showExporter = false
+    @State private var showImporter = false
+    @State private var noticeMessage = ""
+    @State private var isShowingNotice = false
 
     var body: some View {
         NavigationStack {
             List {
                 Section("音频") {
                     settingRow("音频输出", value: "系统默认")
-                    Toggle("与其他 App 混音", isOn: $mixWithOthers)
+                    Toggle("与其他 App 混音", isOn: $mixWithOthersEnabled)
                 }
                 Section("外观") {
                     settingRow("主题", value: "深色")
                 }
                 Section("数据") {
-                    settingRow("导出数据", value: "JSON")
-                    settingRow("导入数据", value: "")
-                    Toggle("匿名数据采集", isOn: $analytics)
+                    Button {
+                        exportBackup()
+                    } label: {
+                        settingRow("导出数据", value: "JSON")
+                    }
+                    .buttonStyle(.plain)
+
+                    Button {
+                        showImporter = true
+                    } label: {
+                        settingRow("导入数据", value: "JSON")
+                    }
+                    .buttonStyle(.plain)
+
+                    Toggle("匿名数据采集", isOn: $analyticsEnabled)
                 }
                 Section("关于") {
                     settingRow("升级至完整版", value: "¥38")
@@ -1338,6 +1447,35 @@ private struct SettingsView: View {
                     Button("完成") { dismiss() }
                 }
             }
+            .fileExporter(
+                isPresented: $showExporter,
+                document: exportDocument,
+                contentType: .json,
+                defaultFilename: "QuietNest-Backup"
+            ) { result in
+                switch result {
+                case .success:
+                    showNotice("导出成功")
+                case .failure(let error):
+                    showNotice("导出失败：\(error.localizedDescription)")
+                }
+            }
+            .fileImporter(
+                isPresented: $showImporter,
+                allowedContentTypes: [.json]
+            ) { result in
+                switch result {
+                case .success(let url):
+                    importBackup(from: url)
+                case .failure(let error):
+                    showNotice("导入失败：\(error.localizedDescription)")
+                }
+            }
+            .alert("提示", isPresented: $isShowingNotice) {
+                Button("确定", role: .cancel) {}
+            } message: {
+                Text(noticeMessage)
+            }
         }
     }
 
@@ -1349,6 +1487,62 @@ private struct SettingsView: View {
                 Text(value).foregroundStyle(.secondary)
             }
         }
+    }
+
+    private func exportBackup() {
+        let favorites = decodeJSONString([String].self, from: favoritePresetNamesData) ?? []
+        let custom = decodeJSONString([Preset].self, from: customPresetsData) ?? []
+        let lastTracks = decodeJSONString([Track].self, from: lastTracksData) ?? []
+
+        let payload = AppBackupCodec.makeExportPayload(
+            favoritePresetNames: favorites,
+            customPresets: custom,
+            lastTracks: lastTracks,
+            lastPresetName: lastPresetName,
+            mixWithOthersEnabled: mixWithOthersEnabled,
+            analyticsEnabled: analyticsEnabled
+        )
+        exportDocument = AppBackupDocument(payload: payload)
+        showExporter = true
+    }
+
+    private func importBackup(from url: URL) {
+        let access = url.startAccessingSecurityScopedResource()
+        defer {
+            if access { url.stopAccessingSecurityScopedResource() }
+        }
+
+        do {
+            let data = try Data(contentsOf: url)
+            let payload = try AppBackupCodec.decodePayload(from: data)
+
+            favoritePresetNamesData = encodeJSONString(payload.favoritePresetNames) ?? "[]"
+            customPresetsData = encodeJSONString(payload.customPresets) ?? "[]"
+            lastTracksData = encodeJSONString(payload.lastTracks) ?? ""
+            lastPresetName = payload.lastPresetName
+            mixWithOthersEnabled = payload.mixWithOthersEnabled
+            analyticsEnabled = payload.analyticsEnabled
+
+            NotificationCenter.default.post(name: .quietNestDidImportBackup, object: nil)
+            showNotice("导入成功")
+        } catch {
+            showNotice("导入失败：\(error.localizedDescription)")
+        }
+    }
+
+    private func showNotice(_ message: String) {
+        noticeMessage = message
+        isShowingNotice = true
+    }
+
+    private func decodeJSONString<T: Decodable>(_ type: T.Type, from raw: String) -> T? {
+        guard let data = raw.data(using: .utf8), !raw.isEmpty else { return nil }
+        return try? JSONDecoder().decode(type, from: data)
+    }
+
+    private func encodeJSONString<T: Encodable>(_ value: T) -> String? {
+        guard let data = try? JSONEncoder().encode(value) else { return nil }
+        return String(data: data, encoding: .utf8)
     }
 }
 

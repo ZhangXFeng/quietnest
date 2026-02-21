@@ -92,13 +92,13 @@ final class AudioManager: ObservableObject {
         // 微风：稀疏，超长粒，几乎无 pitch，飘逸感
         "wind":         GrainPreset(density: 0.25, lenMs: 350...650, pitch: -0.1...0.1,  pan: -0.3...0.3),
         // 雷声：极稀疏，超长粒，低频感强，无 pitch
-        "thunder":      GrainPreset(density: 0.15, lenMs: 400...800, pitch:  0.0...0.0,  pan: -0.2...0.2),
+        "thunder":      GrainPreset(density: 0.12, lenMs: 450...900, pitch:  0.0...0.0,  pan: -0.18...0.18),
         // 鸟鸣：稀疏短促，高频音节感
-        "birds":        GrainPreset(density: 0.30, lenMs: 20...50,   pitch: -0.4...0.6,  pan: -0.4...0.4),
+        "birds":        GrainPreset(density: 0.24, lenMs: 22...55,   pitch: -0.35...0.5,  pan: -0.38...0.38),
         // 蛙鸣：中等密度，短粒，节奏感
         "frogs":        GrainPreset(density: 0.45, lenMs: 40...80,   pitch: -0.2...0.3,  pan: -0.3...0.3),
         // 蟋蟀：高密度，极短粒，颤音质感
-        "crickets":     GrainPreset(density: 0.90, lenMs: 15...30,   pitch: -0.1...0.1,  pan: -0.2...0.2),
+        "crickets":     GrainPreset(density: 0.82, lenMs: 18...34,   pitch: -0.08...0.08,  pan: -0.18...0.18),
         // 篝火：中高密度，短粒，随机爆裂感
         "campfire":     GrainPreset(density: 0.65, lenMs: 25...55,   pitch: -0.15...0.15, pan: -0.25...0.25),
         // 落叶：中等密度，中短粒，沙沙感
@@ -106,33 +106,106 @@ final class AudioManager: ObservableObject {
         // 松林风：稀疏，长粒，低沉宽广
         "forest_wind":  GrainPreset(density: 0.28, lenMs: 300...600, pitch: -0.1...0.15, pan: -0.4...0.4),
         // 瀑布：高密度，中短粒，连续冲击感
-        "waterfall":    GrainPreset(density: 0.80, lenMs: 45...90,   pitch: -0.25...0.25, pan: -0.4...0.4),
+        "waterfall":    GrainPreset(density: 0.74, lenMs: 50...95,   pitch: -0.22...0.22, pan: -0.36...0.36),
         // ── 城市 ────────────────────────────────────────────────────────────
         // 咖啡馆：中密度，中粒，环境感
         "cafe":         GrainPreset(density: 0.50, lenMs: 80...160,  pitch: -0.1...0.1,  pan: -0.3...0.3),
         // 图书馆：极稀疏，长粒，静谧感
         "library":      GrainPreset(density: 0.15, lenMs: 200...400, pitch:  0.0...0.0,  pan: -0.1...0.1),
         // 钟摆：稀疏，中粒，节奏感（几乎无 pitch 变化）
-        "clock":        GrainPreset(density: 0.20, lenMs: 60...100,  pitch:  0.0...0.0,  pan: -0.05...0.05),
+        "clock":        GrainPreset(density: 0.18, lenMs: 70...120,  pitch:  0.0...0.0,  pan: -0.04...0.04),
         // 空调：高密度，长粒，平稳连续
         "aircon":       GrainPreset(density: 0.90, lenMs: 200...350, pitch: -0.05...0.05, pan: -0.15...0.15),
         // 风扇：高密度，中粒，平稳
         "fan":          GrainPreset(density: 0.85, lenMs: 100...200, pitch: -0.08...0.08, pan: -0.2...0.2),
         // 火车：中高密度，中粒，节律感
-        "train":        GrainPreset(density: 0.60, lenMs: 100...200, pitch: -0.1...0.1,  pan: -0.3...0.3),
+        "train":        GrainPreset(density: 0.54, lenMs: 110...220, pitch: -0.08...0.08,  pan: -0.26...0.26),
         // 机舱：高密度，长粒，低频包围
         "airplane":     GrainPreset(density: 0.88, lenMs: 250...450, pitch: -0.05...0.05, pan: -0.3...0.3),
         // 行驶：中高密度，中长粒，路面起伏感
         "driving":      GrainPreset(density: 0.70, lenMs: 150...300, pitch: -0.1...0.1,  pan: -0.25...0.25),
         // 夜街：低密度，中长粒，零星声响
-        "night_street": GrainPreset(density: 0.30, lenMs: 100...250, pitch: -0.2...0.2,  pan: -0.4...0.4),
+        "night_street": GrainPreset(density: 0.26, lenMs: 120...260, pitch: -0.18...0.18,  pan: -0.38...0.38),
         // 雨窗：中高密度，短中粒，玻璃感清脆
-        "rain_window":  GrainPreset(density: 0.72, lenMs: 30...80,   pitch: -0.15...0.15, pan: -0.3...0.3),
+        "rain_window":  GrainPreset(density: 0.66, lenMs: 35...90,   pitch: -0.12...0.12, pan: -0.26...0.26),
         // ── 预设专属 ────────────────────────────────────────────────────────
-        "seagull":      GrainPreset(density: 0.25, lenMs: 30...70,   pitch: -0.3...0.5,  pan: -0.45...0.45),
-        "jazz":         GrainPreset(density: 0.40, lenMs: 80...180,  pitch: -0.2...0.2,  pan: -0.35...0.35),
+        "seagull":      GrainPreset(density: 0.22, lenMs: 35...80,   pitch: -0.26...0.42,  pan: -0.42...0.42),
+        "jazz":         GrainPreset(density: 0.34, lenMs: 95...200,  pitch: -0.16...0.16,  pan: -0.30...0.30),
         "cat":          GrainPreset(density: 0.20, lenMs: 60...140,  pitch: -0.3...0.3,  pan: -0.15...0.15),
         "blizzard":     GrainPreset(density: 0.75, lenMs: 200...400, pitch: -0.08...0.08, pan: -0.4...0.4),
+    ]
+
+    /// 响度归一补偿（基于主观听感第一轮调音）
+    /// 最终增益 = UI 增益 * trim，统一限制到 0...1
+    private static let loudnessTrim: [String: Float] = [
+        // 自然
+        "rain": 0.85, "ocean": 0.92, "stream": 0.90, "wind": 0.95,
+        "thunder": 0.70, "birds": 0.78, "frogs": 0.86, "crickets": 0.74,
+        "campfire": 0.88, "leaves": 0.90, "forest_wind": 0.90, "waterfall": 0.82,
+        // 城市
+        "cafe": 0.88, "library": 0.95, "clock": 0.80, "aircon": 0.78,
+        "fan": 0.80, "train": 0.84, "airplane": 0.76, "driving": 0.85,
+        "night_street": 0.88, "rain_window": 0.84, "seagull": 0.78, "jazz": 0.82,
+        "cat": 0.86, "blizzard": 0.82,
+        // DSP / 双耳节拍
+        "white_noise": 0.72, "pink_noise": 0.76, "brown_noise": 0.82, "blue_noise": 0.70,
+        "Delta波_binaural": 0.75, "Theta波_binaural": 0.75, "Alpha波_binaural": 0.75, "Beta波_binaural": 0.72,
+    ]
+
+    /// 官方预设定向调参（第三轮）
+    /// 仅覆盖命中的 soundId，其余声音仍走全局参数
+    private static let sceneGranularTuning: [String: [String: SceneGrainTuning]] = [
+        // 雨夜书房：雨更连续，篝火更柔，钟摆更克制
+        "雨夜书房": [
+            "rain": .init(densityScale: 1.06, lengthScale: 0.95, pitchScale: 0.85, panScale: 0.85),
+            "campfire": .init(densityScale: 0.90, lengthScale: 1.10, pitchScale: 0.85, panScale: 0.90),
+            "clock": .init(densityScale: 0.82, lengthScale: 1.20, pitchScale: 1.00, panScale: 0.80),
+        ],
+        // 海边小屋：海浪更平滑，海鸥更稀疏，微风更铺底
+        "海边小屋": [
+            "ocean": .init(densityScale: 1.05, lengthScale: 1.10, pitchScale: 0.85, panScale: 0.90),
+            "seagull": .init(densityScale: 0.72, lengthScale: 1.10, pitchScale: 0.80, panScale: 0.90),
+            "wind": .init(densityScale: 1.08, lengthScale: 1.05, pitchScale: 0.90, panScale: 0.90),
+        ],
+        // 深夜咖啡馆：咖啡馆主体，雨声衬底，爵士更远
+        "深夜咖啡馆": [
+            "cafe": .init(densityScale: 1.06, lengthScale: 1.05, pitchScale: 0.90, panScale: 0.90),
+            "rain": .init(densityScale: 0.82, lengthScale: 1.08, pitchScale: 0.85, panScale: 0.80),
+            "jazz": .init(densityScale: 0.75, lengthScale: 1.20, pitchScale: 0.75, panScale: 0.85),
+        ],
+        // 森林书桌：鸟鸣降低打扰，溪流更稳，微风更厚
+        "森林书桌": [
+            "birds": .init(densityScale: 0.72, lengthScale: 1.10, pitchScale: 0.70, panScale: 0.85),
+            "stream": .init(densityScale: 1.04, lengthScale: 1.05, pitchScale: 0.90, panScale: 0.90),
+            "wind": .init(densityScale: 1.10, lengthScale: 1.06, pitchScale: 0.90, panScale: 0.90),
+        ],
+        // 夏夜虫鸣：蟋蟀不过尖，蛙鸣稍远，微风贴底
+        "夏夜虫鸣": [
+            "crickets": .init(densityScale: 0.85, lengthScale: 1.05, pitchScale: 0.72, panScale: 0.85),
+            "frogs": .init(densityScale: 0.88, lengthScale: 1.10, pitchScale: 0.82, panScale: 0.88),
+            "wind": .init(densityScale: 1.05, lengthScale: 1.10, pitchScale: 0.90, panScale: 0.88),
+        ],
+        // 冬日壁炉：篝火主体，风雪更远，猫咪点缀
+        "冬日壁炉": [
+            "campfire": .init(densityScale: 1.06, lengthScale: 1.06, pitchScale: 0.90, panScale: 0.90),
+            "blizzard": .init(densityScale: 0.78, lengthScale: 1.18, pitchScale: 0.82, panScale: 0.88),
+            "cat": .init(densityScale: 0.72, lengthScale: 1.16, pitchScale: 0.85, panScale: 0.85),
+        ],
+    ]
+
+    /// 场景级目标响度（RMS）— 只用于衰减，不做放大
+    private static let sceneTargetRMS: [String: Double] = [
+        // 助眠
+        "雨夜书房": 0.80,
+        "海边小屋": 0.80,
+        // 专注
+        "深夜咖啡馆": 0.84,
+        "森林书桌": 0.84,
+        // 放松
+        "夏夜虫鸣": 0.82,
+        "冬日壁炉": 0.82,
+        // 其他
+        "随机音景": 0.86,
     ]
 
     // MARK: - 生命周期
@@ -158,10 +231,16 @@ final class AudioManager: ObservableObject {
 
         // 轮询引擎 RMS，驱动波形可视化（30fps）
         rmsPollingTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 30.0, repeats: true) { [weak self] _ in
-            guard let self else { return }
-            let raw = Double(self.engine.rmsLevel)
-            self.rmsLevel = min(1.0, raw * 5.0)  // 放大并截幅到 0~1
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                let raw = Double(self.engine.rmsLevel)
+                self.rmsLevel = min(1.0, raw * 5.0)  // 放大并截幅到 0~1
+            }
         }
+    }
+
+    func setMixWithOthers(_ enabled: Bool) {
+        engine.setMixWithOthers(enabled)
     }
 
     // MARK: - 播放控制
@@ -263,22 +342,23 @@ final class AudioManager: ObservableObject {
     func addTrack(name: String, gain: Float = 0.5, seed: UInt64 = 0) {
         let soundId = soundIdForName(name)
         guard !activeTrackIds.contains(soundId) else { return }
+        let finalGain = adjustedGain(for: soundId, uiGain: gain)
 
         let params: TrackParams
         if let noiseType = Self.noiseSounds[name] {
-            params = .noise(noiseType, gain: gain, seed: seed)
+            params = .noise(noiseType, gain: finalGain, seed: seed)
         } else if let beatHz = Self.brainBeatHz[name] {
-            params = .binaural(name: name, beatHz: beatHz, gain: gain)
+            params = .binaural(name: name, beatHz: beatHz, gain: finalGain)
         } else {
             // 自然/城市类声音 -> 粒子合成，使用声音专属 grain 参数
-            let preset = Self.grainPresets[soundId]
+            let preset = sceneAdjustedPreset(soundId: soundId)
             params = .granular(
                 soundId: soundId,
-                gain: gain,
-                density: preset?.density ?? 0.5,
-                grainLenMs: preset?.lenMs ?? 80...160,
-                pitchRange: preset?.pitch ?? -0.3...0.3,
-                panRange: preset?.pan ?? -0.3...0.3,
+                gain: finalGain,
+                density: preset.density,
+                grainLenMs: preset.lenMs,
+                pitchRange: preset.pitch,
+                panRange: preset.pan,
                 seed: seed
             )
         }
@@ -297,7 +377,8 @@ final class AudioManager: ObservableObject {
     /// 更新轨道音量
     func updateVolume(name: String, volume: Double) {
         let soundId = soundIdForName(name)
-        engine.updateTrackGain(soundId, gain: Float(volume))
+        let finalGain = adjustedGain(for: soundId, uiGain: Float(volume))
+        engine.updateTrackGain(soundId, gain: finalGain)
     }
 
     /// 移除所有轨道
@@ -307,9 +388,14 @@ final class AudioManager: ObservableObject {
     }
 
     /// 应用预设（替换所有轨道，无渐变）
-    func applyPreset(tracks: [(name: String, volume: Double)], seed: UInt64 = 0) {
+    func applyPreset(
+        tracks: [(name: String, volume: Double)],
+        seed: UInt64 = 0,
+        sceneName: String? = nil
+    ) {
+        let normalizedTracks = normalizeSceneVolumes(tracks, sceneName: sceneName)
         removeAllTracks()
-        for track in tracks {
+        for track in normalizedTracks {
             addTrack(name: track.name, gain: Float(track.volume), seed: seed)
         }
     }
@@ -317,15 +403,20 @@ final class AudioManager: ObservableObject {
     /// 带 crossfade 的预设切换（淡出 → 换轨 → 淡入，各约 300ms）
     private var crossfadeTask: Task<Void, Never>?
 
-    func crossfadePreset(tracks: [(name: String, volume: Double)], seed: UInt64 = 0) {
+    func crossfadePreset(
+        tracks: [(name: String, volume: Double)],
+        seed: UInt64 = 0,
+        sceneName: String? = nil
+    ) {
         crossfadeTask?.cancel()
-        let capturedTracks = tracks
+        let capturedTracks = normalizeSceneVolumes(tracks, sceneName: sceneName)
         let capturedSeed = seed
+        let plan = CrossfadePlanner.makePlan(trackCount: capturedTracks.count)
         crossfadeTask = Task { @MainActor [weak self] in
             guard let self else { return }
-            let targetVol: Float = 0.85
-            let steps = 15
-            let stepNs: UInt64 = 20_000_000 // 20ms × 15 = 300ms per half
+            let targetVol = plan.targetVolume
+            let steps = plan.steps
+            let stepNs = plan.stepDurationNs
 
             // 淡出
             for i in 1...steps {
@@ -361,11 +452,15 @@ final class AudioManager: ObservableObject {
         let count = rng.nextInt(in: 2...4)
         // 用 rng 做 Fisher-Yates shuffle 前 count 项
         var pool = allSoundNames
+        var generated: [(name: String, volume: Double)] = []
         for i in 0..<min(count, pool.count) {
             let j = i + rng.nextInt(in: 0...(pool.count - 1 - i))
             pool.swapAt(i, j)
-            let vol = rng.nextFloat(in: 0.2...0.8)
-            addTrack(name: pool[i], gain: vol, seed: seed)
+            let vol = Double(rng.nextFloat(in: 0.2...0.8))
+            generated.append((name: pool[i], volume: vol))
+        }
+        for track in normalizeSceneVolumes(generated, sceneName: "随机音景") {
+            addTrack(name: track.name, gain: Float(track.volume), seed: seed)
         }
     }
 
@@ -384,19 +479,20 @@ final class AudioManager: ObservableObject {
         stopPreview()
 
         let previewId = Self.previewSoundId
+        let previewGain = adjustedGain(for: soundId, uiGain: 0.55)
         let params: TrackParams
         if let noiseType = Self.noiseSounds[name] {
-            params = .noise(noiseType, gain: 0.55, seed: 0)
+            params = .noise(noiseType, gain: previewGain, seed: 0)
                 .withSoundId(previewId)
         } else if let beatHz = Self.brainBeatHz[name] {
-            params = .binaural(name: name, beatHz: beatHz, gain: 0.55)
+            params = .binaural(name: name, beatHz: beatHz, gain: previewGain)
                 .withSoundId(previewId)
         } else {
             let preset = Self.grainPresets[soundId]
             params = .granular(
                 soundId: previewId,
                 assetId: soundId,          // 加载真实资产，但用独立 key
-                gain: 0.55,
+                gain: previewGain,
                 density: preset?.density ?? 0.5,
                 grainLenMs: preset?.lenMs ?? 80...160,
                 pitchRange: preset?.pitch ?? -0.3...0.3,
@@ -446,14 +542,36 @@ final class AudioManager: ObservableObject {
         // 自然/城市类：映射到英文资产 ID；未匹配时回退到中文名
         return Self.assetIdMap[name] ?? name
     }
-}
 
-// MARK: - GrainPreset
+    private func adjustedGain(for soundId: String, uiGain: Float) -> Float {
+        SceneAudioTuner.adjustedGain(soundId: soundId, uiGain: uiGain, loudnessTrim: Self.loudnessTrim)
+    }
 
-/// 每种声音的粒子合成参数集合
-private struct GrainPreset {
-    let density: Float
-    let lenMs: ClosedRange<Float>
-    let pitch: ClosedRange<Float>
-    let pan: ClosedRange<Float>
+    private func sceneAdjustedPreset(soundId: String) -> GrainPreset {
+        let base = Self.grainPresets[soundId] ?? GrainPreset(
+            density: 0.5,
+            lenMs: 80...160,
+            pitch: -0.3...0.3,
+            pan: -0.3...0.3
+        )
+        return SceneAudioTuner.sceneAdjustedPreset(
+            basePreset: base,
+            soundId: soundId,
+            sceneName: currentSceneName,
+            sceneGranularTuning: Self.sceneGranularTuning
+        )
+    }
+
+    /// 预设/随机音景响度归一：只做“衰减”，避免轨道数多时整体过响
+    private func normalizeSceneVolumes(
+        _ tracks: [(name: String, volume: Double)],
+        sceneName: String? = nil
+    ) -> [(name: String, volume: Double)] {
+        let sceneKey = sceneName ?? currentSceneName
+        return PresetTransitionPlanner.prepareTracks(
+            tracks,
+            sceneName: sceneKey,
+            sceneTargetRMS: Self.sceneTargetRMS
+        )
+    }
 }

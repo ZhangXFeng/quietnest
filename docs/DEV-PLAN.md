@@ -1,5 +1,31 @@
 # QuietNest 开发计划
 
+## 当前进度（2026-02-21）
+
+- 已完成：
+  - 音频主链路可用（播放/暂停、轨道增删、音量控制、最多 8 轨）。
+  - `granular` 轨道已接回 `GrainScheduler`（自然/城市类不再走 `LoopPlayer` 主路径）。
+  - 预设切换 crossfade、随机音景、定时结束前 5 分钟淡出。
+  - 设置页“与其他 App 混音”已接入真实 `AVAudioSession` 配置。
+  - 设置页数据导入/导出 JSON 已实现，导入后会刷新主页面和音频引擎状态。
+  - 增加 `QuietNestTests` 测试 target 和首批音频核心单测（PRNG、参数平滑）。
+  - 备份导入逻辑已抽离为 `AppBackupCodec`，支持版本校验、轨道清洗（去重/限 8/音量 clamp）和导入一致性测试。
+  - 音频中断恢复策略增强：仅在中断前处于播放态时自动恢复，路由变化暂停逻辑更稳。
+  - 定时淡出逻辑已抽离为 `TimerCountdownReducer`，覆盖“进入最后 5 分钟触发淡出/到时暂停”边界单测。
+  - 预设轨道切换前处理已抽离为 `PresetTransitionPlanner`（清洗/去重/限轨道数/场景 RMS 归一），并补单测。
+  - crossfade 时序已抽离为 `CrossfadePlanner`（按轨道数自适应半程时长/步数），并补单测；重复选择同预设且无变化时会跳过无效切换。
+  - 持久化恢复逻辑已抽离为 `AppStateRestorePlanner`（预设存在性校验、轨道兜底恢复、异常数据回退），导入后场景恢复路径可回归测试。
+  - 备份导出编码已统一到 `AppBackupCodec`（导入/导出共享编解码策略），并补 round-trip 一致性测试。
+  - 备份导出前清洗已统一到 `AppBackupCodec.makeExportPayload`（版本号统一、收藏去重/trim、轨道 clamp/去重），`AppBackupDocument` 读取也改为复用 codec 解码策略。
+  - 回归测试补强：新增导入同步决策边界（trim/容差/轨道顺序变化）与恢复回退边界（解码后空轨道、空预设回退到 fallback）。
+  - 轨道数量规格已抽离为 `TrackPolicy.maxTracks`，导出清洗、预设切换清洗与 UI 添加轨道限制共用同一常量。
+- 进行中：
+  - granular 听感参数和响度归一第一轮调音（已加入按声音的 loudness trim + 场景定向调参，需继续实机微调）。
+  - 调音核心逻辑已抽离为 `SceneAudioTuner`，并补充单测覆盖（增益补偿、场景参数缩放、RMS 衰减归一）。
+- 待完成：
+  - 真机/模拟器自动化测试稳定运行（当前环境 CoreSimulator 服务异常，无法执行 `xcodebuild test`）。
+  - 更完整的回归测试覆盖（预设切换、定时淡出、导入导出一致性）。
+
 ## 目录结构规划
 
 ```

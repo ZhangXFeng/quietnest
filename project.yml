@@ -21,18 +21,38 @@ targets:
       - QuietNest/Services
       - path: QuietNest/Resources/Assets
         type: folder
+      - QuietNest/Resources/AppIcon.xcassets
     settings:
       base:
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_UIStatusBarStyle: UIStatusBarStyleLightContent
         INFOPLIST_KEY_UIUserInterfaceStyle: Dark
         UIBackgroundModes: [audio]
+  QuietNestTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - QuietNestTests
+    dependencies:
+      - target: QuietNest
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.zxf.quietnest.tests
 schemes:
   QuietNest:
     build:
       targets:
         QuietNest: all
+        QuietNestTests: [test]
     run:
       config: Debug
+    test:
+      config: Debug
+      gatherCoverageData: true
+      targets:
+        - name: QuietNestTests
