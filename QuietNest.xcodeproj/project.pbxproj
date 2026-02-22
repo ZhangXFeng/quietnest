@@ -1,0 +1,569 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 63;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		10AEE9184EED87A9BC8A12C4 /* TimerCountdownReducerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3ABC55D13398DE30ED9C70E /* TimerCountdownReducerTests.swift */; };
+		15931ACD1016EFD97B73B91A /* CrossfadePlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86CF770BD10DCE69AF1A76A /* CrossfadePlanner.swift */; };
+		2496A05A3D0C3DFBA71859F4 /* AssetCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A726681FE33B1F072FDDF24 /* AssetCache.swift */; };
+		2B2DD8A6530B1252F3B4E1A3 /* GrainScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5629BD1A8FEF6269C2F6420 /* GrainScheduler.swift */; };
+		3666F815BDCC1E7CDDF75AE9 /* GrainVoice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 839F1760773979638131468B /* GrainVoice.swift */; };
+		40031A7BCEC07506417191AD /* AtomicParamBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6C3F91DFD4EF847B76A570 /* AtomicParamBox.swift */; };
+		4420F827D06BC9C3BEA7A99F /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB9D16D15CD09954A8F955E /* AudioManager.swift */; };
+		4A84CCC26600C3A1A9E20956 /* Assets in Resources */ = {isa = PBXBuildFile; fileRef = 65643944301B06A405DED91E /* Assets */; };
+		54404F847CC1A187DE17CB4A /* AppStateRestorePlannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D150CF52B48A6577EBC8305A /* AppStateRestorePlannerTests.swift */; };
+		6041C2539F4914E415CA55ED /* SceneAudioTunerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A11B7E07FB2E972E4C3A62 /* SceneAudioTunerTests.swift */; };
+		68A0AC918538E44EAB994352 /* Xoshiro256.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3EC1A6F36CD52D19E4E1850 /* Xoshiro256.swift */; };
+		6F4C789A77A251EB13EA6CA9 /* AppImportSyncPlannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053CFD4E0C9995A0954ECF50 /* AppImportSyncPlannerTests.swift */; };
+		735119FF198D7381DC57F568 /* TimerCountdownReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F628C6F8AB622DF5C8C96177 /* TimerCountdownReducer.swift */; };
+		76CA996715ACDC61518954E3 /* TrackPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E59C660AB900FB7D12B5C6 /* TrackPolicy.swift */; };
+		9CDC4C74CA940AFCA010D725 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71622D3A7E4BC3E01A5CDBC6 /* ContentView.swift */; };
+		A4CB49E4D83EF5ADA4763856 /* AppImportSyncPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CBB2F9A8AD4E0DCA29761BC /* AppImportSyncPlanner.swift */; };
+		AEF31F60390EBFD33A5A2E00 /* NoiseDSP.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4AF6B9CF987D29664A46367 /* NoiseDSP.swift */; };
+		BA5BAE953C99621379AB705A /* AudioEngineManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC543F6F0242F7C49146E88A /* AudioEngineManager.swift */; };
+		BE491F9090EDE970D9F6E791 /* AppIcon.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BF57C932E23D0C9CCC7F5DB9 /* AppIcon.xcassets */; };
+		C2542D3FCFEBAC35F2D43417 /* AppStateRestorePlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42CAFCF66EC49D3E30E1A2FE /* AppStateRestorePlanner.swift */; };
+		C6F3457895FAF52572C18E32 /* AppBackupCodecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08A69E68EE6B3BEF1EBA5840 /* AppBackupCodecTests.swift */; };
+		D0AFFBF7B6B2EB897AE7ED55 /* ParamSmoother.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2708EC3079B4B909E2CCC464 /* ParamSmoother.swift */; };
+		D6F4C48D391C3E92A30EDF98 /* QuietNestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 866C2AB98BA64D952AC6279D /* QuietNestApp.swift */; };
+		DB0C982835CAEA86D6CAB122 /* CrossfadePlannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3030F1991DD2E1E0DA5EDE7E /* CrossfadePlannerTests.swift */; };
+		E2F060F51BF36B409C06683A /* AppBackupCodec.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA56628110E64A14E3A139AC /* AppBackupCodec.swift */; };
+		E69928C9B775B02FA7ABB942 /* AudioCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5229BA8804F05AE18E9C315C /* AudioCoreTests.swift */; };
+		EA66C75859D7EFE9364DF7AC /* PresetTransitionPlannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE28BA199A270300CE9C5312 /* PresetTransitionPlannerTests.swift */; };
+		EDDA4DDE79F449A6161FF092 /* SceneAudioTuner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174759C95041B5A85D01F692 /* SceneAudioTuner.swift */; };
+		F40881C0596631BB84EFAD47 /* TrackParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0252C2D686ED0C14B15EA072 /* TrackParams.swift */; };
+		F9995378770D0298A1C754CC /* PresetTransitionPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = C321E712B7A53FDEE4B7B451 /* PresetTransitionPlanner.swift */; };
+		FE30558A9FAA776605A608AF /* LoopPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A41B8EEDD60F06315C3B3674 /* LoopPlayer.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		7AF9AEA3685A82B99E14D11B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8D65570C1C814B029C5BFE1F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B636435DE7349F02567D45D9;
+			remoteInfo = QuietNest;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0252C2D686ED0C14B15EA072 /* TrackParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackParams.swift; sourceTree = "<group>"; };
+		053CFD4E0C9995A0954ECF50 /* AppImportSyncPlannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppImportSyncPlannerTests.swift; sourceTree = "<group>"; };
+		08A69E68EE6B3BEF1EBA5840 /* AppBackupCodecTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBackupCodecTests.swift; sourceTree = "<group>"; };
+		174759C95041B5A85D01F692 /* SceneAudioTuner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneAudioTuner.swift; sourceTree = "<group>"; };
+		2708EC3079B4B909E2CCC464 /* ParamSmoother.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParamSmoother.swift; sourceTree = "<group>"; };
+		3030F1991DD2E1E0DA5EDE7E /* CrossfadePlannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossfadePlannerTests.swift; sourceTree = "<group>"; };
+		3DB9D16D15CD09954A8F955E /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
+		42CAFCF66EC49D3E30E1A2FE /* AppStateRestorePlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateRestorePlanner.swift; sourceTree = "<group>"; };
+		48A11B7E07FB2E972E4C3A62 /* SceneAudioTunerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneAudioTunerTests.swift; sourceTree = "<group>"; };
+		5229BA8804F05AE18E9C315C /* AudioCoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCoreTests.swift; sourceTree = "<group>"; };
+		65643944301B06A405DED91E /* Assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Assets; path = QuietNest/Resources/Assets; sourceTree = SOURCE_ROOT; };
+		6A726681FE33B1F072FDDF24 /* AssetCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetCache.swift; sourceTree = "<group>"; };
+		71622D3A7E4BC3E01A5CDBC6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		839F1760773979638131468B /* GrainVoice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrainVoice.swift; sourceTree = "<group>"; };
+		866C2AB98BA64D952AC6279D /* QuietNestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuietNestApp.swift; sourceTree = "<group>"; };
+		99E59C660AB900FB7D12B5C6 /* TrackPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackPolicy.swift; sourceTree = "<group>"; };
+		9CBB2F9A8AD4E0DCA29761BC /* AppImportSyncPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppImportSyncPlanner.swift; sourceTree = "<group>"; };
+		A41B8EEDD60F06315C3B3674 /* LoopPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopPlayer.swift; sourceTree = "<group>"; };
+		B5629BD1A8FEF6269C2F6420 /* GrainScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrainScheduler.swift; sourceTree = "<group>"; };
+		BA56628110E64A14E3A139AC /* AppBackupCodec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBackupCodec.swift; sourceTree = "<group>"; };
+		BE2384A27489EDAF723E3718 /* QuietNest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuietNest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BF57C932E23D0C9CCC7F5DB9 /* AppIcon.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = AppIcon.xcassets; sourceTree = "<group>"; };
+		C321E712B7A53FDEE4B7B451 /* PresetTransitionPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetTransitionPlanner.swift; sourceTree = "<group>"; };
+		D150CF52B48A6577EBC8305A /* AppStateRestorePlannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateRestorePlannerTests.swift; sourceTree = "<group>"; };
+		DB8449F8856DE9A970AE34A1 /* QuietNestTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = QuietNestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC543F6F0242F7C49146E88A /* AudioEngineManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngineManager.swift; sourceTree = "<group>"; };
+		DC6C3F91DFD4EF847B76A570 /* AtomicParamBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomicParamBox.swift; sourceTree = "<group>"; };
+		E4AF6B9CF987D29664A46367 /* NoiseDSP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoiseDSP.swift; sourceTree = "<group>"; };
+		EE28BA199A270300CE9C5312 /* PresetTransitionPlannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetTransitionPlannerTests.swift; sourceTree = "<group>"; };
+		F3ABC55D13398DE30ED9C70E /* TimerCountdownReducerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerCountdownReducerTests.swift; sourceTree = "<group>"; };
+		F3EC1A6F36CD52D19E4E1850 /* Xoshiro256.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Xoshiro256.swift; sourceTree = "<group>"; };
+		F628C6F8AB622DF5C8C96177 /* TimerCountdownReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerCountdownReducer.swift; sourceTree = "<group>"; };
+		F86CF770BD10DCE69AF1A76A /* CrossfadePlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossfadePlanner.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		000EE72E729ABC98018D094D /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				BF57C932E23D0C9CCC7F5DB9 /* AppIcon.xcassets */,
+			);
+			name = Resources;
+			path = QuietNest/Resources;
+			sourceTree = "<group>";
+		};
+		0234EF1E5427919DF1CEA46E /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				71622D3A7E4BC3E01A5CDBC6 /* ContentView.swift */,
+			);
+			name = Views;
+			path = QuietNest/Views;
+			sourceTree = "<group>";
+		};
+		0F58B6F5B8ECC87BB58F9DB1 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				DC543F6F0242F7C49146E88A /* AudioEngineManager.swift */,
+				3DB9D16D15CD09954A8F955E /* AudioManager.swift */,
+				B5629BD1A8FEF6269C2F6420 /* GrainScheduler.swift */,
+				839F1760773979638131468B /* GrainVoice.swift */,
+				A41B8EEDD60F06315C3B3674 /* LoopPlayer.swift */,
+				E4AF6B9CF987D29664A46367 /* NoiseDSP.swift */,
+				2708EC3079B4B909E2CCC464 /* ParamSmoother.swift */,
+				174759C95041B5A85D01F692 /* SceneAudioTuner.swift */,
+				F3EC1A6F36CD52D19E4E1850 /* Xoshiro256.swift */,
+			);
+			name = Audio;
+			path = QuietNest/Audio;
+			sourceTree = "<group>";
+		};
+		4D3D61D9399BCAFF3C19EFE1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BE2384A27489EDAF723E3718 /* QuietNest.app */,
+				DB8449F8856DE9A970AE34A1 /* QuietNestTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		75700F87D203D74B3990F6BD /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				6A726681FE33B1F072FDDF24 /* AssetCache.swift */,
+				DC6C3F91DFD4EF847B76A570 /* AtomicParamBox.swift */,
+			);
+			name = Services;
+			path = QuietNest/Services;
+			sourceTree = "<group>";
+		};
+		98D12412CBEF6D5E413B2576 /* QuietNestTests */ = {
+			isa = PBXGroup;
+			children = (
+				08A69E68EE6B3BEF1EBA5840 /* AppBackupCodecTests.swift */,
+				053CFD4E0C9995A0954ECF50 /* AppImportSyncPlannerTests.swift */,
+				D150CF52B48A6577EBC8305A /* AppStateRestorePlannerTests.swift */,
+				5229BA8804F05AE18E9C315C /* AudioCoreTests.swift */,
+				3030F1991DD2E1E0DA5EDE7E /* CrossfadePlannerTests.swift */,
+				EE28BA199A270300CE9C5312 /* PresetTransitionPlannerTests.swift */,
+				48A11B7E07FB2E972E4C3A62 /* SceneAudioTunerTests.swift */,
+				F3ABC55D13398DE30ED9C70E /* TimerCountdownReducerTests.swift */,
+			);
+			path = QuietNestTests;
+			sourceTree = "<group>";
+		};
+		AB88D0E2EB78335905ECE591 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				BA56628110E64A14E3A139AC /* AppBackupCodec.swift */,
+				9CBB2F9A8AD4E0DCA29761BC /* AppImportSyncPlanner.swift */,
+				42CAFCF66EC49D3E30E1A2FE /* AppStateRestorePlanner.swift */,
+				F86CF770BD10DCE69AF1A76A /* CrossfadePlanner.swift */,
+				C321E712B7A53FDEE4B7B451 /* PresetTransitionPlanner.swift */,
+				F628C6F8AB622DF5C8C96177 /* TimerCountdownReducer.swift */,
+				0252C2D686ED0C14B15EA072 /* TrackParams.swift */,
+				99E59C660AB900FB7D12B5C6 /* TrackPolicy.swift */,
+			);
+			name = Models;
+			path = QuietNest/Models;
+			sourceTree = "<group>";
+		};
+		ED1E13B88BDCD1776A6A5435 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				866C2AB98BA64D952AC6279D /* QuietNestApp.swift */,
+			);
+			name = App;
+			path = QuietNest/App;
+			sourceTree = "<group>";
+		};
+		F1E760CBC9C975D96A2733B0 = {
+			isa = PBXGroup;
+			children = (
+				65643944301B06A405DED91E /* Assets */,
+				ED1E13B88BDCD1776A6A5435 /* App */,
+				0F58B6F5B8ECC87BB58F9DB1 /* Audio */,
+				AB88D0E2EB78335905ECE591 /* Models */,
+				98D12412CBEF6D5E413B2576 /* QuietNestTests */,
+				000EE72E729ABC98018D094D /* Resources */,
+				75700F87D203D74B3990F6BD /* Services */,
+				0234EF1E5427919DF1CEA46E /* Views */,
+				4D3D61D9399BCAFF3C19EFE1 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		93660257FB0A1425FA7098EB /* QuietNestTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 952EE3829D64F4D77ED9C40D /* Build configuration list for PBXNativeTarget "QuietNestTests" */;
+			buildPhases = (
+				8C5D1BA6C82D0AA2BDE77F37 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7BF0FE831AEF3847EEA7FA82 /* PBXTargetDependency */,
+			);
+			name = QuietNestTests;
+			packageProductDependencies = (
+			);
+			productName = QuietNestTests;
+			productReference = DB8449F8856DE9A970AE34A1 /* QuietNestTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		B636435DE7349F02567D45D9 /* QuietNest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BB081ABEF4A4B5FAC6B18763 /* Build configuration list for PBXNativeTarget "QuietNest" */;
+			buildPhases = (
+				B138557A715E7DA11FF88817 /* Sources */,
+				E5F65BD53AD83CBCECD00AA4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = QuietNest;
+			packageProductDependencies = (
+			);
+			productName = QuietNest;
+			productReference = BE2384A27489EDAF723E3718 /* QuietNest.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8D65570C1C814B029C5BFE1F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+			};
+			buildConfigurationList = 8BAF80E244DA17D51679B007 /* Build configuration list for PBXProject "QuietNest" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = F1E760CBC9C975D96A2733B0;
+			minimizedProjectReferenceProxies = 1;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B636435DE7349F02567D45D9 /* QuietNest */,
+				93660257FB0A1425FA7098EB /* QuietNestTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E5F65BD53AD83CBCECD00AA4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BE491F9090EDE970D9F6E791 /* AppIcon.xcassets in Resources */,
+				4A84CCC26600C3A1A9E20956 /* Assets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8C5D1BA6C82D0AA2BDE77F37 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C6F3457895FAF52572C18E32 /* AppBackupCodecTests.swift in Sources */,
+				6F4C789A77A251EB13EA6CA9 /* AppImportSyncPlannerTests.swift in Sources */,
+				54404F847CC1A187DE17CB4A /* AppStateRestorePlannerTests.swift in Sources */,
+				E69928C9B775B02FA7ABB942 /* AudioCoreTests.swift in Sources */,
+				DB0C982835CAEA86D6CAB122 /* CrossfadePlannerTests.swift in Sources */,
+				EA66C75859D7EFE9364DF7AC /* PresetTransitionPlannerTests.swift in Sources */,
+				6041C2539F4914E415CA55ED /* SceneAudioTunerTests.swift in Sources */,
+				10AEE9184EED87A9BC8A12C4 /* TimerCountdownReducerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B138557A715E7DA11FF88817 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E2F060F51BF36B409C06683A /* AppBackupCodec.swift in Sources */,
+				A4CB49E4D83EF5ADA4763856 /* AppImportSyncPlanner.swift in Sources */,
+				C2542D3FCFEBAC35F2D43417 /* AppStateRestorePlanner.swift in Sources */,
+				2496A05A3D0C3DFBA71859F4 /* AssetCache.swift in Sources */,
+				40031A7BCEC07506417191AD /* AtomicParamBox.swift in Sources */,
+				BA5BAE953C99621379AB705A /* AudioEngineManager.swift in Sources */,
+				4420F827D06BC9C3BEA7A99F /* AudioManager.swift in Sources */,
+				9CDC4C74CA940AFCA010D725 /* ContentView.swift in Sources */,
+				15931ACD1016EFD97B73B91A /* CrossfadePlanner.swift in Sources */,
+				2B2DD8A6530B1252F3B4E1A3 /* GrainScheduler.swift in Sources */,
+				3666F815BDCC1E7CDDF75AE9 /* GrainVoice.swift in Sources */,
+				FE30558A9FAA776605A608AF /* LoopPlayer.swift in Sources */,
+				AEF31F60390EBFD33A5A2E00 /* NoiseDSP.swift in Sources */,
+				D0AFFBF7B6B2EB897AE7ED55 /* ParamSmoother.swift in Sources */,
+				F9995378770D0298A1C754CC /* PresetTransitionPlanner.swift in Sources */,
+				D6F4C48D391C3E92A30EDF98 /* QuietNestApp.swift in Sources */,
+				EDDA4DDE79F449A6161FF092 /* SceneAudioTuner.swift in Sources */,
+				735119FF198D7381DC57F568 /* TimerCountdownReducer.swift in Sources */,
+				F40881C0596631BB84EFAD47 /* TrackParams.swift in Sources */,
+				76CA996715ACDC61518954E3 /* TrackPolicy.swift in Sources */,
+				68A0AC918538E44EAB994352 /* Xoshiro256.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		7BF0FE831AEF3847EEA7FA82 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B636435DE7349F02567D45D9 /* QuietNest */;
+			targetProxy = 7AF9AEA3685A82B99E14D11B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0F65AF24B67669D71ED49346 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.zxf.quietnest.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/QuietNest.app/QuietNest";
+			};
+			name = Release;
+		};
+		170B2656CCD6EC51C1868757 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = JRCNT57CRW;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				UIBackgroundModes = audio;
+			};
+			name = Debug;
+		};
+		55AA3E058C48DDC549CDDE0D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.zxf.quietnest.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/QuietNest.app/QuietNest";
+			};
+			name = Debug;
+		};
+		7497BC82CA005BDC19F6CD41 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = JRCNT57CRW;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				UIBackgroundModes = audio;
+			};
+			name = Release;
+		};
+		BD67B2C7B596C69DC7A40C6F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zxf.quietnest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		C507BC162ECD9D838081585D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zxf.quietnest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		8BAF80E244DA17D51679B007 /* Build configuration list for PBXProject "QuietNest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C507BC162ECD9D838081585D /* Debug */,
+				BD67B2C7B596C69DC7A40C6F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		952EE3829D64F4D77ED9C40D /* Build configuration list for PBXNativeTarget "QuietNestTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				55AA3E058C48DDC549CDDE0D /* Debug */,
+				0F65AF24B67669D71ED49346 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		BB081ABEF4A4B5FAC6B18763 /* Build configuration list for PBXNativeTarget "QuietNest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				170B2656CCD6EC51C1868757 /* Debug */,
+				7497BC82CA005BDC19F6CD41 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8D65570C1C814B029C5BFE1F /* Project object */;
+}
